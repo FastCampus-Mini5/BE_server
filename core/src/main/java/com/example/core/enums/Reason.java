@@ -1,4 +1,4 @@
-package com.example.core.model.schedule.enums;
+package com.example.core.enums;
 
 public enum Reason {
   휴가,
