@@ -1,0 +1,3 @@
+rootProject.name = 'BE_server'
+
+include 'application', 'core', 'admin'
