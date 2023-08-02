@@ -1,5 +1,6 @@
 package com.example.application.user.dto;
 
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.user.SignUp;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.sql.Timestamp;
@@ -37,12 +38,15 @@ public class UserRequest {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private Timestamp hireDate;
 
-    public SignUp toEntityWithHashPassword(PasswordEncoder passwordEncoder) {
+    public SignUp toEntityEncrypted(PasswordEncoder passwordEncoder, Encryption encryption) {
+      String encryptedUsername = encryption.encrypt(username);
       String encodedPassword = passwordEncoder.encode(this.password);
+      String encryptedEmail = encryption.encrypt(email);
+
       return SignUp.builder()
-          .username(username) // TODO : AES 암호화
+          .username(encryptedUsername)
           .password(encodedPassword)
-          .email(email) // TODO : AES 암호화
+          .email(encryptedEmail)
           .hireDate(hireDate)
           .build();
     }
