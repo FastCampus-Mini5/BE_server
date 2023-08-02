@@ -2,6 +2,7 @@ package com.example.admin.user.service;
 
 import com.example.admin.user.dto.SignUpRequest;
 import com.example.admin.user.dto.SignUpResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.exception.EmptyDtoRequestException;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.SignUpServiceException;
@@ -37,6 +38,9 @@ class SignUpServiceTest {
     @Mock
     private SignUpRepository signUpRepository;
 
+    @Mock
+    private Encryption encryption;
+
     @InjectMocks
     private SignUpService signUpService;
 
@@ -44,10 +48,16 @@ class SignUpServiceTest {
     @Test
     void approve_Success_Test() {
         // Given
-        SignUpRequest.ApproveDTO approveDTO = new SignUpRequest.ApproveDTO("user@example.com");
-        SignUp signUp = SignUp.builder().email("user@example.com").build();
+        SignUpRequest.ApproveDTO approveDTO = new SignUpRequest.ApproveDTO("user@test.com");
+        SignUp signUp = SignUp.builder().email("encrypted_user@test.com").build();
 
-        Mockito.when(signUpRepository.findByEmail(approveDTO.getEmail()))
+        Mockito.when(encryption.encrypt(ArgumentMatchers.anyString()))
+                .thenAnswer(invocation -> {
+                    String rawData = invocation.getArgument(0);
+                    return "encrypted_" + rawData;
+                });
+
+        Mockito.when(signUpRepository.findByEmail(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.of(signUp));
 
         Mockito.when(userRepository.save(ArgumentMatchers.any(User.class)))
@@ -75,6 +85,12 @@ class SignUpServiceTest {
         // Given
         Mockito.when(signUpRepository.findByEmail(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.empty());
+
+        Mockito.when(encryption.encrypt(ArgumentMatchers.anyString()))
+                .thenAnswer(invocation -> {
+                    String rawData = invocation.getArgument(0);
+                    return "encrypted_" + rawData;
+                });
 
         SignUpRequest.ApproveDTO approveDTO = new SignUpRequest.ApproveDTO("user@example.com");
         // When

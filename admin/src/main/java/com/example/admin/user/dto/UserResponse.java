@@ -1,5 +1,6 @@
 package com.example.admin.user.dto;
 
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.schedule.VacationInfo;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,15 @@ public class UserResponse {
                     .email(vacationInfo.getUser().getEmail())
                     .hireDate(vacationInfo.getUser().getHireDate())
                     .remainVacation(vacationInfo.getRemainVacation())
+                    .build();
+        }
+
+        public ListDTO decrypt(Encryption encryption) {
+            return ListDTO.builder()
+                    .username(encryption.decrypt(username))
+                    .email(encryption.decrypt(email))
+                    .hireDate(hireDate)
+                    .remainVacation(remainVacation)
                     .build();
         }
     }

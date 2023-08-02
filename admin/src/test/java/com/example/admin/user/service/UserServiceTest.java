@@ -1,6 +1,7 @@
 package com.example.admin.user.service;
 
 import com.example.admin.user.dto.UserResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.model.schedule.VacationInfo;
 import com.example.core.model.user.User;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -25,6 +27,9 @@ class UserServiceTest {
 
     @Mock
     private VacationInfoRepository vacationInfoRepository;
+
+    @Mock
+    private Encryption encryption;
 
     @InjectMocks
     private UserService userService;

@@ -1,5 +1,6 @@
 package com.example.admin.user.dto;
 
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.user.SignUp;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,6 +25,14 @@ public class SignUpResponse {
                     .username(signUp.getUsername())
                     .email(signUp.getEmail())
                     .hireDate(signUp.getHireDate())
+                    .build();
+        }
+
+        public ListDTO decrypt(Encryption encryption) {
+            return ListDTO.builder()
+                    .username(encryption.decrypt(username))
+                    .email(encryption.decrypt(email))
+                    .hireDate(hireDate)
                     .build();
         }
     }
