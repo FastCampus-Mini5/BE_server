@@ -49,16 +49,14 @@ public class UserService {
   public UserResponse.AvailableEmailDTO checkEmail(UserRequest.CheckEmailDTO checkEmailDTO) {
     if (checkEmailDTO == null) throw new Exception500(ErrorMessage.EMPTY_DATA_TO_CHECK_EMAIL);
 
+    String plainEmail = checkEmailDTO.getEmail();
     String encryptedEmail = encryption.encrypt(checkEmailDTO.getEmail());
 
     if (userRepository.existsByEmail(encryptedEmail)) {
-      return UserResponse.AvailableEmailDTO.builder()
-          .email(encryptedEmail)
-          .available(false)
-          .build();
+      return UserResponse.AvailableEmailDTO.builder().email(plainEmail).available(false).build();
     }
 
-    return UserResponse.AvailableEmailDTO.builder().email(encryptedEmail).available(true).build();
+    return UserResponse.AvailableEmailDTO.builder().email(plainEmail).available(true).build();
   }
 
   public UserResponse.UserInfoDTO getUserInfoByUserId(Long userId) {
