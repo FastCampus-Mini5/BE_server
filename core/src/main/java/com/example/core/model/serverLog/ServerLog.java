@@ -4,7 +4,7 @@ import com.example.core.model.user.User;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "log_tb")
