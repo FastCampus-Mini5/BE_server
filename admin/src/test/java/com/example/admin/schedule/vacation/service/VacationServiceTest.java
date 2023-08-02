@@ -2,6 +2,7 @@ package com.example.admin.schedule.vacation.service;
 
 import com.example.admin.schedule.vacation.dto.VacationRequest;
 import com.example.admin.schedule.vacation.dto.VacationResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.ScheduleServiceException;
 import com.example.core.errors.exception.ValidStatusException;
@@ -37,6 +38,9 @@ class VacationServiceTest {
     private VacationRepository vacationRepository;
 
     @Mock
+    private Encryption encryption;
+
+    @Mock
     private VacationInfoRepository vacationInfoRepository;
 
     @InjectMocks
@@ -49,7 +53,7 @@ class VacationServiceTest {
         Long vacationId = 1L;
         VacationRequest.StatusDTO statusDTO = new VacationRequest.StatusDTO(vacationId, "APPROVE");
 
-        User user = createUser(1L, "user1");
+        User user = createUser(1L, "88kd02Gzscm5encDICfxJA==", "kjoJiIPBz6f5YQXgKxpurQ==");
         Vacation existVacation = createVacation(vacationId, user, "2023-07-01 00:00:00", "2023-07-02 00:00:00");
         when(vacationRepository.findById(vacationId)).thenReturn(Optional.of(existVacation));
         VacationInfo vacationInfo = createVacationInfo(1L, user);
@@ -97,10 +101,10 @@ class VacationServiceTest {
         verify(vacationInfoRepository, never()).save(any());
     }
 
-    private User createUser(Long id, String username) {
+    private User createUser(Long id, String username, String email) {
         return User.builder()
                 .id(id)
-                .email("test" + id + "@email.com")
+                .email(email)
                 .username(username)
                 .password("password123")
                 .role("user")
@@ -139,9 +143,9 @@ class VacationServiceTest {
         Pageable pageable = mock(Pageable.class);
 
         List<User> testUsers = List.of(
-                createUser(1L, "user1"),
-                createUser(2L, "user2"),
-                createUser(3L, "user3")
+                createUser(1L, "88kd02Gzscm5encDICfxJA==", "kjoJiIPBz6f5YQXgKxpurQ=="),
+                createUser(2L, "Eg4iD3nDL3l+g28tUHHnIg==", "VynYMl7zNOhDiqMVFC6ODg=="),
+                createUser(3L, "5A/8pW1DNtMaZnmlWiBcag==", "9ef2PAWiR6rG9yeTqXyflg==")
         );
 
         List<Vacation> vacationList = List.of(

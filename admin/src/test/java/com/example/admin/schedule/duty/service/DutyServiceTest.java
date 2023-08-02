@@ -2,6 +2,7 @@ package com.example.admin.schedule.duty.service;
 
 import com.example.admin.schedule.duty.dto.DutyRequest;
 import com.example.admin.schedule.duty.dto.DutyResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.ScheduleServiceException;
 import com.example.core.errors.exception.ValidStatusException;
@@ -33,6 +34,9 @@ class DutyServiceTest {
     @Mock
     private DutyRepository dutyRepository;
 
+    @Mock
+    private Encryption encryption;
+
     @InjectMocks
     private DutyService dutyService;
 
@@ -43,7 +47,7 @@ class DutyServiceTest {
         Long dutyId = 1L;
         DutyRequest.StatusDTO statusDTO = new DutyRequest.StatusDTO(dutyId, "APPROVE");
 
-        Duty existDuty = createDuty(dutyId, createUser(1L, "user1"), "2023-07-01 00:00:00");
+        Duty existDuty = createDuty(dutyId, createUser(1L, "88kd02Gzscm5encDICfxJA==", "kjoJiIPBz6f5YQXgKxpurQ=="), "2023-07-01 00:00:00");
         when(dutyRepository.findById(dutyId)).thenReturn(Optional.of(existDuty));
 
         //when
@@ -63,7 +67,7 @@ class DutyServiceTest {
         Long dutyId = 1L;
         DutyRequest.StatusDTO statusDTO = new DutyRequest.StatusDTO(dutyId, "INVALID_STATUS");
 
-        Duty existingDuty = createDuty(dutyId, createUser(1L, "user1"), "2023-07-01 00:00:00");
+        Duty existingDuty = createDuty(dutyId, createUser(1L, "Eg4iD3nDL3l+g28tUHHnIg==", "VynYMl7zNOhDiqMVFC6ODg=="), "2023-07-01 00:00:00");
         when(dutyRepository.findById(dutyId)).thenReturn(Optional.of(existingDuty));
 
         //when,then
@@ -89,10 +93,10 @@ class DutyServiceTest {
         verify(dutyRepository, never()).save(any());
     }
 
-    private User createUser(Long id, String username) {
+    private User createUser(Long id, String username, String email) {
         return User.builder()
                 .id(id)
-                .email("test" + id + "@email.com")
+                .email(email)
                 .username(username)
                 .password("password123")
                 .role("user")
@@ -121,9 +125,9 @@ class DutyServiceTest {
         Pageable pageable = mock(Pageable.class);
 
         List<User> testUsers = List.of(
-                createUser(1L, "user1"),
-                createUser(2L, "user2"),
-                createUser(3L, "user3")
+                createUser(1L, "88kd02Gzscm5encDICfxJA==", "kjoJiIPBz6f5YQXgKxpurQ=="),
+                createUser(2L, "Eg4iD3nDL3l+g28tUHHnIg==", "VynYMl7zNOhDiqMVFC6ODg=="),
+                createUser(3L, "5A/8pW1DNtMaZnmlWiBcag==", "9ef2PAWiR6rG9yeTqXyflg==")
         );
 
         List<Duty> dutyList = List.of(
