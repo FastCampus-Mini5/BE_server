@@ -1,5 +1,6 @@
 package com.example.application.user.dto;
 
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.user.SignUp;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.sql.Timestamp;
@@ -37,12 +38,15 @@ public class UserRequest {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private Timestamp hireDate;
 
-    public SignUp toEntityWithHashPassword(PasswordEncoder passwordEncoder) {
+    public SignUp toEntityEncrypted(PasswordEncoder passwordEncoder, Encryption encryption) {
+      String encryptedUsername = encryption.encrypt(username);
       String encodedPassword = passwordEncoder.encode(this.password);
+      String encryptedEmail = encryption.encrypt(email);
+
       return SignUp.builder()
-          .username(username) // TODO : AES 암호화
+          .username(encryptedUsername)
           .password(encodedPassword)
-          .email(email) // TODO : AES 암호화
+          .email(encryptedEmail)
           .hireDate(hireDate)
           .build();
     }
@@ -72,5 +76,18 @@ public class UserRequest {
         regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
         message = "유효하지 않은 이메일 주소입니다.")
     private String email;
+  }
+
+  @Getter
+  @ToString
+  @Builder
+  public static class UpdateInfoDTO {
+    private String profileImg; // TODO : 이미지 파일 첨부
+
+    @NotBlank
+    @Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$",
+        message = "비밀번호는 영어 대문자, 영어 소문자, 숫자, 특수문자를 모두 포함해야 하며, 최소 8글자 이상이어야 합니다.")
+    private String password;
   }
 }
