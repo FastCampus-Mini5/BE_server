@@ -1,3 +1,5 @@
+secret-key: 7f186169-ea6d-4bb8-80a1-148329b820c0
+
 server:
   port: 8080
   servlet:
