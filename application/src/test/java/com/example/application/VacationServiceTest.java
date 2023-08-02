@@ -239,7 +239,22 @@ class VacationServiceTest {
     }
 
     @Test
-    @DisplayName("전체 유저 연차 리스트 조회 성공 - 년도 별")
+    void getMyVacationsByYear_Fail_InvalidUserId() {
+        // given
+        int year = 2023;
+        Long invalidUserId = 999L;
+
+        when(userRepository.findById(invalidUserId)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(Exception404.class, () -> vacationService.getMyVacationsByYear(year, invalidUserId));
+
+        verify(userRepository, times(1)).findById(invalidUserId);
+        verify(vacationRepository, never()).findByYearAndUser(anyInt(), any(User.class));
+    }
+
+    @Test
+    @DisplayName("전체 유저 연차 리스트(년도별 조회) 성공")
     void getAllVacationsByYear_Success() {
         // given
         int year = 2023;
