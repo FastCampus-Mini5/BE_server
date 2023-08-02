@@ -53,8 +53,10 @@ public class UserRequest {
   }
 
   @Getter
-  @ToString
+  @NoArgsConstructor
+  @AllArgsConstructor
   @Builder
+  @ToString
   public static class SignInDTO {
 
     @NotBlank
@@ -67,8 +69,10 @@ public class UserRequest {
   }
 
   @Getter
-  @ToString
+  @NoArgsConstructor
+  @AllArgsConstructor
   @Builder
+  @ToString
   public static class CheckEmailDTO {
     @Setter
     @NotBlank
@@ -79,8 +83,10 @@ public class UserRequest {
   }
 
   @Getter
-  @ToString
+  @NoArgsConstructor
+  @AllArgsConstructor
   @Builder
+  @ToString
   public static class UpdateInfoDTO {
     private String profileImg; // TODO : 이미지 파일 첨부
 
