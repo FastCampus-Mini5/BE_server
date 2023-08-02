@@ -185,7 +185,54 @@ class DutyServiceTest {
         verify(dutyRepository, never()).save(any(Duty.class));
     }
 
-    @DisplayName("전체 유저 당직 리스트 조회 성공 - 년도 별")
+    @DisplayName("내 당직 리스트(년도별 조회) 성공")
+    @Test
+    void getMyDutiesByYear_Success() {
+        // given
+        int year = 2023;
+        Long userId = 1L;
+
+        User user = createUser(userId, "user1");
+        Duty duty1 = createDuty(1L, user, "2023-07-01 00:00:00");
+        Duty duty2 = createDuty(2L, user, "2023-08-01 00:00:00");
+
+        List<Duty> myDutiesInYear = Arrays.asList(duty1, duty2);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(dutyRepository.findByYearAndUser(year, user)).thenReturn(myDutiesInYear);
+
+        // when
+        List<DutyResponse.MyDutyDTO> result = dutyService.getMyDutiesByYear(year, userId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(duty1.getId(), result.get(0).getId());
+        assertEquals(duty2.getId(), result.get(1).getId());
+        assertEquals(duty1.getDutyDate(), result.get(0).getDutyDate());
+        assertEquals(duty2.getDutyDate(), result.get(1).getDutyDate());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(dutyRepository, times(1)).findByYearAndUser(year, user);
+    }
+
+    @DisplayName("내 당직 리스트(년도별 조회) 실패 - 유효하지 않은 사용자 ID")
+    @Test
+    void getMyDutiesByYear_Fail_InvalidUserId() {
+        // given
+        int year = 2023;
+        Long invalidUserId = 999L;
+
+        when(userRepository.findById(invalidUserId)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(Exception404.class, () -> dutyService.getMyDutiesByYear(year, invalidUserId));
+
+        verify(userRepository, times(1)).findById(invalidUserId);
+        verify(dutyRepository, never()).findByYearAndUser(anyInt(), any(User.class));
+    }
+
+    @DisplayName("전체 유저 당직 리스트(년도별 조회) 성공")
     @Test
     void getAllDutiesByYear_Success() {
         // given

@@ -191,8 +191,55 @@ class VacationServiceTest {
         verify(vacationRepository, times(1)).findById(vacationId);
     }
 
+    @DisplayName("내 연차 리스트(년도별 조회) 성공")
     @Test
-    @DisplayName("전체 유저 연차 리스트 조회 성공 - 년도 별")
+    void getMyVacationsByYear_Success() {
+        // given
+        int year = 2023;
+        Long userId = 1L;
+
+        User user = createUser(userId, "user1");
+        Vacation vacation1 = createVacation(1L, user, "2023-07-01 00:00:00", "2023-07-05 00:00:00");
+        Vacation vacation2 = createVacation(2L, user, "2023-08-01 00:00:00", "2023-08-05 00:00:00");
+
+        List<Vacation> myVacationsInYear = Arrays.asList(vacation1, vacation2);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(vacationRepository.findByYearAndUser(year, user)).thenReturn(myVacationsInYear);
+
+        // when
+        List<VacationResponse.MyVacationDTO> result = vacationService.getMyVacationsByYear(year, userId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(vacation1.getId(), result.get(0).getId());
+        assertEquals(vacation2.getId(), result.get(1).getId());
+        assertEquals(vacation1.getStartDate(), result.get(0).getStartDate());
+        assertEquals(vacation2.getStartDate(), result.get(1).getStartDate());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(vacationRepository, times(1)).findByYearAndUser(year, user);
+    }
+
+    @DisplayName("내 연차 리스트(년도별 조회) 실패 - 유효하지 않은 사용자 ID")
+    @Test
+    void getMyVacationsByYear_Fail_InvalidUserId() {
+        // given
+        int year = 2023;
+        Long invalidUserId = 999L;
+
+        when(userRepository.findById(invalidUserId)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(Exception404.class, () -> vacationService.getMyVacationsByYear(year, invalidUserId));
+
+        verify(userRepository, times(1)).findById(invalidUserId);
+        verify(vacationRepository, never()).findByYearAndUser(anyInt(), any(User.class));
+    }
+
+    @Test
+    @DisplayName("전체 유저 연차 리스트(년도별 조회) 성공")
     void getAllVacationsByYear_Success() {
         // given
         int year = 2023;

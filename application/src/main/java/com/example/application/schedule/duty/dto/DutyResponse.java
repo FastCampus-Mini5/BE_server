@@ -30,6 +30,21 @@ public class DutyResponse {
 
     @Getter
     @Builder
+    public static class MyDutyDTO {
+
+        private Long id;
+        private Timestamp dutyDate;
+
+        public static MyDutyDTO from(Duty duty) {
+            return MyDutyDTO.builder()
+                    .id(duty.getId())
+                    .dutyDate(duty.getDutyDate())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
     public static class ListDTO {
 
         private String username;

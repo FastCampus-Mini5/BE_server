@@ -17,8 +17,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -68,6 +70,17 @@ public class DutyService {
         return DutyResponse.DutyDTO.from(savedDuty);
     }
 
+    @Transactional(readOnly = true)
+    public List<DutyResponse.MyDutyDTO> getMyDutiesByYear(int year, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception404(ErrorMessage.USER_NOT_FOUND));
+
+        List<Duty> myDutiesInYear = dutyRepository.findByYearAndUser(year, user);
+        return myDutiesInYear.stream().map(DutyResponse.MyDutyDTO::from).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public Page<DutyResponse.ListDTO> getAllDutiesByYear(int year, Pageable pageable) {
 
         if (pageable == null) throw new EmptyPagingDataRequestException();

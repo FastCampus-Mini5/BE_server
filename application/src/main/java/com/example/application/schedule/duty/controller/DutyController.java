@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,6 +43,17 @@ public class DutyController {
         DutyResponse.DutyDTO cancelledDuty = dutyService.cancelDuty(cancelDTO, userId);
 
         return ResponseEntity.ok(ApiResponse.success(cancelledDuty));
+    }
+
+    @GetMapping("/myduty")
+    public ResponseEntity<ApiResponse.Result<List<DutyResponse.MyDutyDTO>>> getMyDutiesByYear(
+            @RequestParam("year") int year,
+            @AuthenticationPrincipal PrincipalUserDetail userDetails) {
+        log.info("GET /api/user/myduty " + year);
+
+        Long userId = userDetails.getUser().getId();
+        List<DutyResponse.MyDutyDTO> myDutyResponse = dutyService.getMyDutiesByYear(year, userId);
+        return ResponseEntity.ok(ApiResponse.success(myDutyResponse));
     }
 
     @GetMapping("/all/list")

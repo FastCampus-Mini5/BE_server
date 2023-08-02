@@ -20,8 +20,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -81,6 +83,17 @@ public class VacationService {
         return VacationResponse.VacationDTO.from(savedVacation);
     }
 
+    @Transactional(readOnly = true)
+    public List<VacationResponse.MyVacationDTO> getMyVacationsByYear(int year, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception404(ErrorMessage.USER_NOT_FOUND));
+
+        List<Vacation> myVacationsInYear = vacationRepository.findByYearAndUser(year, user);
+        return myVacationsInYear.stream().map(VacationResponse.MyVacationDTO::from).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public Page<VacationResponse.ListDTO> getAllVacationsByYear(int year, Pageable pageable) {
 
         if (pageable == null) throw new EmptyPagingDataRequestException();
