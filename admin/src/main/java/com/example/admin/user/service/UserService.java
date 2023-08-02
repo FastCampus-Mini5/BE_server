@@ -1,6 +1,7 @@
 package com.example.admin.user.service;
 
 import com.example.admin.user.dto.UserResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.model.schedule.VacationInfo;
 import com.example.core.repository.schedule.VacationInfoRepository;
@@ -14,11 +15,14 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final VacationInfoRepository vacationInfoRepository;
+    private final Encryption encryption;
 
     public Page<UserResponse.ListDTO> getAllUsers(Pageable pageable) {
         if (pageable == null) throw new EmptyPagingDataRequestException();
 
         Page<VacationInfo> allUsersWithVacationInfo = vacationInfoRepository.findAll(pageable);
-        return allUsersWithVacationInfo.map(UserResponse.ListDTO::from);
+        return allUsersWithVacationInfo
+                .map(UserResponse.ListDTO::from)
+                .map(listDTO -> listDTO.decrypt(encryption));
     }
 }
