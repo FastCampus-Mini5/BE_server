@@ -3,13 +3,15 @@ package com.example.application.user.controller;
 import com.example.application.user.dto.UserRequest;
 import com.example.application.user.dto.UserResponse;
 import com.example.application.user.service.UserService;
-import com.example.core.util.ApiResponse;
+import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.model.user.User;
+import com.example.core.util.ApiResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -55,5 +57,28 @@ public class UserController {
     UserResponse.AvailableEmailDTO availableEmailDTO = userService.checkEmail(checkEmailDTO);
 
     return ResponseEntity.ok(ApiResponse.success(availableEmailDTO));
+  }
+
+  @GetMapping("/info")
+  public ResponseEntity<ApiResponse.Result<UserResponse.UserInfoDTO>> userInfo(
+      @AuthenticationPrincipal PrincipalUserDetail userDetail) {
+
+    UserResponse.UserInfoDTO userInfoDTO =
+        userService.getUserInfoByUserId(userDetail.getUser().getId());
+
+    log.info("조회된 유저 정보 : {}", userInfoDTO);
+
+    return ResponseEntity.ok(ApiResponse.success(userInfoDTO));
+  }
+
+  @PostMapping("/update")
+  public ResponseEntity<ApiResponse.Result<String>> updateUserInfo(
+      @AuthenticationPrincipal PrincipalUserDetail userDetail,
+      @RequestBody @Valid UserRequest.UpdateInfoDTO updateInfoDTO,
+      Errors errors) {
+
+    userService.updateUserInfoByUserId(userDetail.getUser().getId(), updateInfoDTO);
+
+    return ResponseEntity.ok(ApiResponse.success(null));
   }
 }
