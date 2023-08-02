@@ -1,13 +1,10 @@
 package com.example.application.user.dto;
 
 import com.example.core.model.user.SignUp;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.sql.Timestamp;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -36,9 +33,9 @@ public class UserRequest {
         message = "비밀번호는 영어 대문자, 영어 소문자, 숫자, 특수문자를 모두 포함해야 하며, 최소 8글자 이상이어야 합니다.")
     private String password;
 
-    @NotBlank
-    @DateTimeFormat(pattern = "yy-MM-dd HH:mm:ss")
-    private String hireDate;
+    @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    private Timestamp hireDate;
 
     public SignUp toEntityWithHashPassword(PasswordEncoder passwordEncoder) {
       String encodedPassword = passwordEncoder.encode(this.password);
@@ -46,13 +43,14 @@ public class UserRequest {
           .username(username) // TODO : AES 암호화
           .password(encodedPassword)
           .email(email) // TODO : AES 암호화
-          .hireDate(Timestamp.valueOf(hireDate))
+          .hireDate(hireDate)
           .build();
     }
   }
 
   @Getter
   @ToString
+  @Builder
   public static class SignInDTO {
 
     @NotBlank
@@ -66,6 +64,7 @@ public class UserRequest {
 
   @Getter
   @ToString
+  @Builder
   public static class CheckEmailDTO {
     @Setter
     @NotBlank
