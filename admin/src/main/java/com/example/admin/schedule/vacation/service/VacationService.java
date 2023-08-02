@@ -2,6 +2,7 @@ package com.example.admin.schedule.vacation.service;
 
 import com.example.admin.schedule.vacation.dto.VacationRequest;
 import com.example.admin.schedule.vacation.dto.VacationResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.ErrorMessage;
 import com.example.core.errors.exception.EmptyDtoRequestException;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
@@ -26,6 +27,7 @@ public class VacationService {
 
     private final VacationRepository vacationRepository;
     private final VacationInfoRepository vacationInfoRepository;
+    private final Encryption encryption;
 
     @Transactional
     public void updateStatus(VacationRequest.StatusDTO statusDTO) {
@@ -75,6 +77,7 @@ public class VacationService {
 
         Status requestStatus = isValidStatus(status);
         Page<Vacation> vacationPage = vacationRepository.findVacationsByStatus(pageable, requestStatus);
-        return vacationPage.map(VacationResponse.ListDTO::form);
+
+        return vacationPage.map(VacationResponse.ListDTO::form).map(listDTO -> listDTO.decrypt(encryption));
     }
 }

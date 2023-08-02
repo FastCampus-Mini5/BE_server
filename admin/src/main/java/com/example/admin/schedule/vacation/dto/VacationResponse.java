@@ -1,5 +1,6 @@
 package com.example.admin.schedule.vacation.dto;
 
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.schedule.Reason;
 import com.example.core.model.schedule.Vacation;
 import lombok.*;
@@ -19,6 +20,17 @@ public class VacationResponse {
         private Timestamp createdAt;
         private Timestamp startDate;
         private Timestamp endDate;
+
+        public ListDTO decrypt(Encryption encryption) {
+            return ListDTO.builder()
+                    .username(encryption.decrypt(username))
+                    .email(encryption.decrypt(email))
+                    .reason(reason)
+                    .createdAt(createdAt)
+                    .startDate(startDate)
+                    .endDate(endDate)
+                    .build();
+        }
 
         public static ListDTO form(Vacation vacation) {
             return ListDTO.builder()
