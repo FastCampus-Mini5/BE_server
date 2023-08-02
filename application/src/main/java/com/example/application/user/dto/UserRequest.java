@@ -96,4 +96,17 @@ public class UserRequest {
         message = "비밀번호는 영어 대문자, 영어 소문자, 숫자, 특수문자를 모두 포함해야 하며, 최소 8글자 이상이어야 합니다.")
     private String password;
   }
+
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @Builder
+  @ToString
+  public static class FindPasswordDTO {
+    @NotBlank
+    @Pattern(
+        regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+        message = "유효하지 않은 이메일 형식입니다.")
+    private String email;
+  }
 }
