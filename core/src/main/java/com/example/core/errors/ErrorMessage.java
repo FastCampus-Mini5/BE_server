@@ -8,6 +8,7 @@ public class ErrorMessage {
   public static final String EMPTY_DATA_TO_SIGNUP = "회원 가입을 위한 데이터가 존재하지 않습니다.";
   public static final String EMPTY_DATA_TO_SIGNIN= "로그인을 위한 데이터가 존재하지 않습니다.";
   public static final String EMPTY_DATA_TO_CHECK_EMAIL = "중복 확인을 위한 이메일이 존재하지 않습니다.";
+  public static final String EMPTY_DATA_TO_FIND_PASSWORD = "비밀번호 찾기를 위한 데이터가 존재하지 않습니다.";
 
   public static final String UN_AUTHORIZED = "UNAUTH";
   public static final String FORBIDDEN = "FORBIDDEN";
@@ -19,6 +20,7 @@ public class ErrorMessage {
   public static final String EMPTY_DATA_TO_APPROVE_SIGNUP = "회원 가입 요청 승인을 위한 데이터가 존재하지 않습니다.";
 
   public static final String NOT_FOUND_SIGNUP = "회원 가입 요청 정보가 존재하지 않습니다.";
+  public static final String NOT_FOUND_USER_TO_RESET_PASSWORD = "입력하신 이메일에 해당하는 회원 정보가 존재하지 않습니다.";
 
   public static final String INVALID_STATUS = "유효하지 않은 상태입니다.";
 
@@ -47,4 +49,6 @@ public class ErrorMessage {
   public static final String EMPTY_DATA_TO_CANCEL_DUTY = "당직 취소 정보가 없습니다.";
   public static final String UNAUTHORIZED_ACCESS_TO_DUTY = "당직에 대한 접근 권한이 없습니다.";
   public static final String DUTY_CANNOT_BE_CANCELLED = "이미 승인된 당직은 취소할 수 없습니다.";
+
+  public static final String EMAIL_SEND_FAILED = "이메일 전송 중 오류가 발생했습니다.";
 }
