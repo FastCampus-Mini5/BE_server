@@ -1,14 +1,18 @@
 package com.example.admin.schedule.duty.service;
 
 import com.example.admin.schedule.duty.dto.DutyRequest;
+import com.example.admin.schedule.duty.dto.DutyResponse;
 import com.example.core.errors.ErrorMessage;
 import com.example.core.errors.exception.EmptyDtoRequestException;
+import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.ScheduleServiceException;
 import com.example.core.errors.exception.ValidStatusException;
 import com.example.core.model.schedule.Duty;
 import com.example.core.model.schedule.Status;
 import com.example.core.repository.schedule.DutyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,5 +46,13 @@ public class DutyService {
         } catch (IllegalArgumentException e) {
             throw new ValidStatusException();
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DutyResponse.ListDTO> dutyListByStatus(Pageable pageable, String status) {
+        if (pageable == null) throw new EmptyPagingDataRequestException();
+        Status requestStatus = isValidStatus(status);
+        Page<Duty> dutyPage = dutyRepository.findDutyByStatus(pageable, requestStatus);
+        return dutyPage.map(DutyResponse.ListDTO::form);
     }
 }
