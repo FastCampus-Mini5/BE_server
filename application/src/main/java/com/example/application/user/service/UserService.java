@@ -3,6 +3,7 @@ package com.example.application.user.service;
 import com.example.application.user.dto.UserRequest;
 import com.example.application.user.dto.UserResponse;
 import com.example.core.config._security.PrincipalUserDetail;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.config._security.jwt.JwtTokenProvider;
 import com.example.core.errors.ErrorMessage;
 import com.example.core.errors.exception.Exception500;
@@ -24,11 +25,12 @@ public class UserService {
   private final AuthenticationManager authenticationManager;
   private final SignUpRepository signUpRepository;
   private final UserRepository userRepository;
+  private final Encryption encryption;
 
   public void saveSignUpRequest(UserRequest.SignUpDTO signUpDTO) {
     if (signUpDTO == null) throw new Exception500(ErrorMessage.EMPTY_DATA_TO_SIGNUP);
 
-    signUpRepository.save(signUpDTO.toEntityWithHashPassword(passwordEncoder));
+    signUpRepository.save(signUpDTO.toEntityEncrypted(passwordEncoder, encryption));
   }
 
   public String signIn(UserRequest.SignInDTO signInDTO) {
@@ -47,12 +49,45 @@ public class UserService {
   public UserResponse.AvailableEmailDTO checkEmail(UserRequest.CheckEmailDTO checkEmailDTO) {
     if (checkEmailDTO == null) throw new Exception500(ErrorMessage.EMPTY_DATA_TO_CHECK_EMAIL);
 
-    String email = checkEmailDTO.getEmail();
+    String encryptedEmail = encryption.encrypt(checkEmailDTO.getEmail());
 
-    if (userRepository.existsByEmail(email)) {
-      return UserResponse.AvailableEmailDTO.builder().email(email).available(false).build();
+    if (userRepository.existsByEmail(encryptedEmail)) {
+      return UserResponse.AvailableEmailDTO.builder()
+          .email(encryptedEmail)
+          .available(false)
+          .build();
     }
 
-    return UserResponse.AvailableEmailDTO.builder().email(email).available(true).build();
+    return UserResponse.AvailableEmailDTO.builder().email(encryptedEmail).available(true).build();
+  }
+
+  public UserResponse.UserInfoDTO getUserInfoByUserId(Long userId) {
+
+    User user = userRepository.getReferenceById(userId);
+
+    return UserResponse.UserInfoDTO.builder()
+        .email(user.getEmail())
+        .username(user.getUsername())
+        .profileImage(user.getProfileImage())
+        .hireDate(user.getHireDate())
+        .build()
+        .toDecryptedDTO(encryption);
+  }
+
+  public void updateUserInfoByUserId(Long userId, UserRequest.UpdateInfoDTO updateInfoDTO) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(
+                () -> {
+                  throw new Exception500(ErrorMessage.USER_NOT_FOUND);
+                });
+
+    String encryptedPassword = encryption.encrypt(updateInfoDTO.getPassword());
+
+    user.setProfileImage(updateInfoDTO.getProfileImg());
+    user.setPassword(encryptedPassword);
+
+    userRepository.save(user);
   }
 }
