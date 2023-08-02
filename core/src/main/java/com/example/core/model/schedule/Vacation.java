@@ -1,12 +1,9 @@
 package com.example.core.model.schedule;
 
+import com.example.core.model.user.User;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import javax.persistence.*;
-
-import com.example.core.enums.Status;
-import com.example.core.enums.Reason;
-import com.example.core.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,11 +1,9 @@
 package com.example.core.model.schedule;
 
+import com.example.core.model.user.User;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import javax.persistence.*;
-
-import com.example.core.enums.Status;
-import com.example.core.model.user.User;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
