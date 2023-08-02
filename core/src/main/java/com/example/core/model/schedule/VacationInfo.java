@@ -25,6 +25,7 @@ public class VacationInfo {
   @Column(nullable = false)
   private int remainVacation;
 
+  @Setter
   @Column(nullable = false)
   private int usedVacation;
 
