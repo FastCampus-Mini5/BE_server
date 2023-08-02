@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface VacationInfoRepository extends JpaRepository<VacationInfo, Long> {
     Optional<VacationInfo> findByUser(User user);
+    Optional<VacationInfo> findByUserId(Long userId);
 }
