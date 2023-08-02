@@ -39,4 +39,22 @@ public class VacationResponse {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    public static class ListDTO {
+        private String username;
+        private String email;
+        private Timestamp startDate;
+        private Timestamp endDate;
+
+        public static ListDTO from(Vacation vacation) {
+            return ListDTO.builder()
+                    .username(vacation.getUser().getUsername())
+                    .email(vacation.getUser().getEmail())
+                    .startDate(vacation.getStartDate())
+                    .endDate(vacation.getEndDate())
+                    .build();
+        }
+    }
 }

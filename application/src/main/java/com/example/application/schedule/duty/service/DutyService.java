@@ -3,6 +3,7 @@ package com.example.application.schedule.duty.service;
 import com.example.application.schedule.duty.dto.DutyRequest;
 import com.example.application.schedule.duty.dto.DutyResponse;
 import com.example.core.errors.ErrorMessage;
+import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.Exception400;
 import com.example.core.errors.exception.Exception403;
 import com.example.core.errors.exception.Exception404;
@@ -12,6 +13,8 @@ import com.example.core.model.user.User;
 import com.example.core.repository.schedule.DutyRepository;
 import com.example.core.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -63,5 +66,13 @@ public class DutyService {
         duty.updateStatus(Status.CANCELLED);
         Duty savedDuty = dutyRepository.save(duty);
         return DutyResponse.DutyDTO.from(savedDuty);
+    }
+
+    public Page<DutyResponse.ListDTO> getAllDutiesByYear(int year, Pageable pageable) {
+
+        if (pageable == null) throw new EmptyPagingDataRequestException();
+
+        Page<Duty> allDutiesInYear = dutyRepository.findByDutyDateYear(year, pageable);
+        return allDutiesInYear.map(DutyResponse.ListDTO::from);
     }
 }
