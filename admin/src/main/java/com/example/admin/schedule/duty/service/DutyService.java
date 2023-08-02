@@ -2,6 +2,7 @@ package com.example.admin.schedule.duty.service;
 
 import com.example.admin.schedule.duty.dto.DutyRequest;
 import com.example.admin.schedule.duty.dto.DutyResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.ErrorMessage;
 import com.example.core.errors.exception.EmptyDtoRequestException;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DutyService {
 
     private final DutyRepository dutyRepository;
+    private final Encryption encryption;
 
     @Transactional
     public void updateByStatus(DutyRequest.StatusDTO statusDTO) {
@@ -53,6 +55,6 @@ public class DutyService {
         if (pageable == null) throw new EmptyPagingDataRequestException();
         Status requestStatus = isValidStatus(status);
         Page<Duty> dutyPage = dutyRepository.findDutyByStatus(pageable, requestStatus);
-        return dutyPage.map(DutyResponse.ListDTO::form);
+        return dutyPage.map(DutyResponse.ListDTO::form).map(listDTO -> listDTO.decrypt(encryption));
     }
 }
