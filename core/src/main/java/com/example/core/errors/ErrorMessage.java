@@ -26,6 +26,9 @@ public class ErrorMessage {
   public static final String EMPTY_DATA_TO_VACATION = "연차 승인 요청 승인을 위한 데이터가 존재하지 않습니다.";
   public static final String EMPTY_DATA_TO_DUTY = "당직 승인 요청 승인을 위한 데이터가 존재하지 않습니다.";
 
+  public static final String ENCRYPT_ERROR = "암호화 오류: ";
+  public static final String DECRYPT_ERROR = "복호화 오류: ";
+
   public static final String TOKEN_UN_AUTHORIZED = "UNAUTHORIZED";
   public static final String TOKEN_EXPIRED= "EXPIRED";
   public static final String TOKEN_VERIFICATION_FAILED= "VERIFICATION_FAILED";
