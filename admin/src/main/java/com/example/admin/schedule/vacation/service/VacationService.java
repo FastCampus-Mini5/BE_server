@@ -1,8 +1,10 @@
 package com.example.admin.schedule.vacation.service;
 
 import com.example.admin.schedule.vacation.dto.VacationRequest;
+import com.example.admin.schedule.vacation.dto.VacationResponse;
 import com.example.core.errors.ErrorMessage;
 import com.example.core.errors.exception.EmptyDtoRequestException;
+import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.ScheduleServiceException;
 import com.example.core.errors.exception.ValidStatusException;
 import com.example.core.model.schedule.Status;
@@ -11,6 +13,8 @@ import com.example.core.model.schedule.VacationInfo;
 import com.example.core.repository.schedule.VacationInfoRepository;
 import com.example.core.repository.schedule.VacationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,5 +67,14 @@ public class VacationService {
         } catch (IllegalArgumentException e) {
             throw new ValidStatusException();
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<VacationResponse.ListDTO> vacationListByStatus(Pageable pageable, String status) {
+        if (pageable == null) throw new EmptyPagingDataRequestException();
+
+        Status requestStatus = isValidStatus(status);
+        Page<Vacation> vacationPage = vacationRepository.findVacationsByStatus(pageable, requestStatus);
+        return vacationPage.map(VacationResponse.ListDTO::form);
     }
 }
