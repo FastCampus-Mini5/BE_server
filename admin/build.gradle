@@ -35,6 +35,9 @@ dependencies {
 
     testImplementation 'org.springframework.security:spring-security-test'
 
+    implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2' // swagger
+    implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2' //swagger
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.3'
     // 루트 프로젝트의 settings.gradle에 include 한 프로젝트명과 동일해야 한다.
     implementation project(':core')
 }
