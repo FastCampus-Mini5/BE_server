@@ -15,10 +15,12 @@ import java.util.List;
 @Repository
 public interface VacationRepository extends JpaRepository<Vacation, Long> {
 
+    @Query("SELECT v FROM Vacation v WHERE YEAR(v.startDate) = :year")
+    Page<Vacation> findByStartDateYear(@Param("year") int year, Pageable pageable);
+
     @Query("SELECT v FROM Vacation v WHERE v.user = :user AND YEAR(v.startDate) = :year")
     List<Vacation> findByYearAndUser(@Param("year") int year, @Param("user") User user);
 
     @Query("SELECT v FROM Vacation v WHERE YEAR(v.startDate) = :year")
-    Page<Vacation> findByStartDateYear(@Param("year") int year, Pageable pageable);
     Page<Vacation> findVacationsByStatus(Pageable pageable, Status status);
 }

@@ -239,7 +239,7 @@ class VacationServiceTest {
     }
 
     @Test
-    @DisplayName("전체 유저 연차 리스트(년도별 조회) 성공")
+    @DisplayName("전체 유저 연차 리스트 조회 성공 - 년도 별")
     void getAllVacationsByYear_Success() {
         // given
         int year = 2023;
