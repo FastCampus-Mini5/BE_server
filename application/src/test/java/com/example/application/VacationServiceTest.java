@@ -20,9 +20,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -183,6 +189,87 @@ class VacationServiceTest {
         assertThrows(Exception403.class, () -> vacationService.cancelVacation(cancelDTO, userId));
 
         verify(vacationRepository, times(1)).findById(vacationId);
+    }
+
+    @DisplayName("내 연차 리스트(년도별 조회) 성공")
+    @Test
+    void getMyVacationsByYear_Success() {
+        // given
+        int year = 2023;
+        Long userId = 1L;
+
+        User user = createUser(userId, "user1");
+        Vacation vacation1 = createVacation(1L, user, "2023-07-01 00:00:00", "2023-07-05 00:00:00");
+        Vacation vacation2 = createVacation(2L, user, "2023-08-01 00:00:00", "2023-08-05 00:00:00");
+
+        List<Vacation> myVacationsInYear = Arrays.asList(vacation1, vacation2);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(vacationRepository.findByYearAndUser(year, user)).thenReturn(myVacationsInYear);
+
+        // when
+        List<VacationResponse.MyVacationDTO> result = vacationService.getMyVacationsByYear(year, userId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(vacation1.getId(), result.get(0).getId());
+        assertEquals(vacation2.getId(), result.get(1).getId());
+        assertEquals(vacation1.getStartDate(), result.get(0).getStartDate());
+        assertEquals(vacation2.getStartDate(), result.get(1).getStartDate());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(vacationRepository, times(1)).findByYearAndUser(year, user);
+    }
+
+    @DisplayName("내 연차 리스트(년도별 조회) 실패 - 유효하지 않은 사용자 ID")
+    @Test
+    void getMyVacationsByYear_Fail_InvalidUserId() {
+        // given
+        int year = 2023;
+        Long invalidUserId = 999L;
+
+        when(userRepository.findById(invalidUserId)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(Exception404.class, () -> vacationService.getMyVacationsByYear(year, invalidUserId));
+
+        verify(userRepository, times(1)).findById(invalidUserId);
+        verify(vacationRepository, never()).findByYearAndUser(anyInt(), any(User.class));
+    }
+
+    @Test
+    @DisplayName("전체 유저 연차 리스트(년도별 조회) 성공")
+    void getAllVacationsByYear_Success() {
+        // given
+        int year = 2023;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        User user1 = createUser(1L, "user1");
+        User user2 = createUser(2L, "user2");
+
+        Vacation vacation1 = createVacation(1L, user1, "2023-01-01 00:00:00", "2023-01-05 00:00:00");
+        Vacation vacation2 = createVacation(2L, user2, "2023-02-01 00:00:00", "2023-02-05 00:00:00");
+
+        List<Vacation> vacations = Arrays.asList(vacation1, vacation2);
+        Page<Vacation> page = new PageImpl<>(vacations, pageable, vacations.size());
+
+        when(vacationRepository.findByStartDateYear(eq(year), eq(pageable))).thenReturn(page);
+
+        // when
+        Page<VacationResponse.ListDTO> result = vacationService.getAllVacationsByYear(year, pageable);
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(vacation1.getUser().getUsername(), result.getContent().get(0).getUsername());
+        assertEquals(vacation2.getUser().getUsername(), result.getContent().get(1).getUsername());
+        assertEquals(vacation1.getStartDate(), result.getContent().get(0).getStartDate());
+        assertEquals(vacation2.getStartDate(), result.getContent().get(1).getStartDate());
+        assertEquals(vacation1.getEndDate(), result.getContent().get(0).getEndDate());
+        assertEquals(vacation2.getEndDate(), result.getContent().get(1).getEndDate());
+
+        verify(vacationRepository, times(1)).findByStartDateYear(year, pageable);
     }
 
     private Vacation createVacation(Long id, User user, String startDate, String endDate, Status status) {

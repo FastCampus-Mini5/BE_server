@@ -17,10 +17,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -177,6 +183,85 @@ class DutyServiceTest {
 
         verify(dutyRepository, times(1)).findById(dutyId);
         verify(dutyRepository, never()).save(any(Duty.class));
+    }
+
+    @DisplayName("내 당직 리스트(년도별 조회) 성공")
+    @Test
+    void getMyDutiesByYear_Success() {
+        // given
+        int year = 2023;
+        Long userId = 1L;
+
+        User user = createUser(userId, "user1");
+        Duty duty1 = createDuty(1L, user, "2023-07-01 00:00:00");
+        Duty duty2 = createDuty(2L, user, "2023-08-01 00:00:00");
+
+        List<Duty> myDutiesInYear = Arrays.asList(duty1, duty2);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(dutyRepository.findByYearAndUser(year, user)).thenReturn(myDutiesInYear);
+
+        // when
+        List<DutyResponse.MyDutyDTO> result = dutyService.getMyDutiesByYear(year, userId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(duty1.getId(), result.get(0).getId());
+        assertEquals(duty2.getId(), result.get(1).getId());
+        assertEquals(duty1.getDutyDate(), result.get(0).getDutyDate());
+        assertEquals(duty2.getDutyDate(), result.get(1).getDutyDate());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(dutyRepository, times(1)).findByYearAndUser(year, user);
+    }
+
+    @DisplayName("내 당직 리스트(년도별 조회) 실패 - 유효하지 않은 사용자 ID")
+    @Test
+    void getMyDutiesByYear_Fail_InvalidUserId() {
+        // given
+        int year = 2023;
+        Long invalidUserId = 999L;
+
+        when(userRepository.findById(invalidUserId)).thenReturn(Optional.empty());
+
+        // when, then
+        assertThrows(Exception404.class, () -> dutyService.getMyDutiesByYear(year, invalidUserId));
+
+        verify(userRepository, times(1)).findById(invalidUserId);
+        verify(dutyRepository, never()).findByYearAndUser(anyInt(), any(User.class));
+    }
+
+    @DisplayName("전체 유저 당직 리스트(년도별 조회) 성공")
+    @Test
+    void getAllDutiesByYear_Success() {
+        // given
+        int year = 2023;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        User user1 = createUser(1L, "user1");
+        User user2 = createUser(2L, "user2");
+
+        Duty duty1 = createDuty(1L, user1, "2023-07-01 00:00:00");
+        Duty duty2 = createDuty(2L, user2, "2023-08-01 00:00:00");
+
+        List<Duty> duties = Arrays.asList(duty1, duty2);
+        Page<Duty> page = new PageImpl<>(duties, pageable, duties.size());
+
+        when(dutyRepository.findByDutyDateYear(eq(year), eq(pageable))).thenReturn(page);
+
+        // when
+        Page<DutyResponse.ListDTO> result = dutyService.getAllDutiesByYear(year, pageable);
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(duty1.getUser().getUsername(), result.getContent().get(0).getUsername());
+        assertEquals(duty2.getUser().getUsername(), result.getContent().get(1).getUsername());
+        assertEquals(duty1.getDutyDate(), result.getContent().get(0).getDutyDate());
+        assertEquals(duty2.getDutyDate(), result.getContent().get(1).getDutyDate());
+
+        verify(dutyRepository, times(1)).findByDutyDateYear(year, pageable);
     }
 
     private DutyRequest.AddDTO createDutyRequest(String dutyDate) {
