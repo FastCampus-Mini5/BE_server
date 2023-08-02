@@ -17,6 +17,10 @@ public class Exception400 extends RuntimeException {
     this.value = value;
   }
 
+  public Exception400(String key) {
+    this(key, "");
+  }
+
   public ApiResponse.Result<Object> body() {
     return ApiResponse.error(getMessage(), status());
   }
