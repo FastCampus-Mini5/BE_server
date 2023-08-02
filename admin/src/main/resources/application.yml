@@ -34,4 +34,4 @@ spring:
   sql:
     init:
       mode: always
-#      data-locations: classpath:test/data.sql
+      data-locations: classpath:test/data.sql
