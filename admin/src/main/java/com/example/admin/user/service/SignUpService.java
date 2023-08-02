@@ -2,6 +2,7 @@ package com.example.admin.user.service;
 
 import com.example.admin.user.dto.SignUpRequest;
 import com.example.admin.user.dto.SignUpResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.ErrorMessage;
 import com.example.core.errors.exception.EmptyDtoRequestException;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
@@ -24,12 +25,14 @@ public class SignUpService {
 
     private final SignUpRepository signUpRepository;
     private final UserRepository userRepository;
+    private final Encryption encryption;
 
     @Transactional
     public void approve(SignUpRequest.ApproveDTO approveDTO) {
         if (approveDTO == null) throw new EmptyDtoRequestException(ErrorMessage.EMPTY_DATA_TO_APPROVE_SIGNUP);
 
-        Optional<SignUp> signUpOptional = signUpRepository.findByEmail(approveDTO.getEmail());
+        String encryptedEmail = encryption.encrypt(approveDTO.getEmail());
+        Optional<SignUp> signUpOptional = signUpRepository.findByEmail(encryptedEmail);
         SignUp signUp = signUpOptional.orElseThrow(() -> new SignUpServiceException(ErrorMessage.NOT_FOUND_SIGNUP));
 
         User user = signUp.toUser();
@@ -42,6 +45,8 @@ public class SignUpService {
         if (pageable == null) throw new EmptyPagingDataRequestException();
 
         Page<SignUp> signUps = signUpRepository.findAll(pageable);
-        return signUps.map(SignUpResponse.ListDTO::from);
+        return signUps
+                .map(SignUpResponse.ListDTO::from)
+                .map(listDTO -> listDTO.decrypt(encryption));
     }
 }
