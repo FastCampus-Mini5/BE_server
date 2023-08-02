@@ -1,6 +1,8 @@
 package com.example.admin.schedule.vacation.service;
 
 import com.example.admin.schedule.vacation.dto.VacationRequest;
+import com.example.admin.schedule.vacation.dto.VacationResponse;
+import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.ScheduleServiceException;
 import com.example.core.errors.exception.ValidStatusException;
 import com.example.core.model.schedule.Reason;
@@ -16,9 +18,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -123,5 +129,63 @@ class VacationServiceTest {
                 .remainVacation(5)
                 .usedVacation(3)
                 .build();
+    }
+
+    @DisplayName("연차 목록 조회 성공")
+    @Test
+    void testGetVacationListSuccess() {
+        //given
+        String validStatus = "PENDING";
+        Pageable pageable = mock(Pageable.class);
+
+        List<User> testUsers = List.of(
+                createUser(1L, "user1"),
+                createUser(2L, "user2"),
+                createUser(3L, "user3")
+        );
+
+        List<Vacation> vacationList = List.of(
+                createVacation(1L, testUsers.get(0), "2023-07-01 00:00:00", "2023-07-05 00:00:00"),
+                createVacation(2L, testUsers.get(1), "2023-07-02 00:00:00", "2023-07-03 00:00:00"),
+                createVacation(3L, testUsers.get(2), "2023-07-03 00:00:00", "2023-07-04 00:00:00")
+        );
+
+        Page<Vacation> mockPage = new PageImpl<>(vacationList, pageable, vacationList.size());
+        when(vacationRepository.findVacationsByStatus(pageable, Status.PENDING)).thenReturn(mockPage);
+
+        //when
+        Page<VacationResponse.ListDTO> result = vacationService.vacationListByStatus(pageable, validStatus);
+
+        //then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(3, result.getTotalElements());
+        verify(vacationRepository, times(1)).findVacationsByStatus(pageable, Status.PENDING);
+    }
+
+    @DisplayName("연차 목록 조회 실패 - 유효하지 않은 상태")
+    @Test
+    void testGetVacationListFailWithStatus() {
+        //given
+        String invalidStatus = "INVALID_STATUS";
+        Pageable pageable = mock(Pageable.class);
+
+        //when, then
+        assertThrows(ValidStatusException.class,
+                () -> vacationService.vacationListByStatus(pageable, invalidStatus));
+        verify(vacationRepository, never()).findVacationsByStatus(any(), any());
+    }
+
+    @DisplayName("연차 목록 조회 실패 - 빈 페이지")
+    @Test
+    void testGetVacationListFailWithPage() {
+        //given
+        String validStatus = "APPROVED";
+        Pageable pageable = null;
+
+        //when, then
+        assertThrows(EmptyPagingDataRequestException.class,
+                () -> vacationService.vacationListByStatus(pageable, validStatus));
+        verify(vacationRepository, never()).findVacationsByStatus(any(), any());
     }
 }
