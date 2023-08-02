@@ -13,6 +13,7 @@ public class ErrorMessage {
   public static final String FORBIDDEN = "FORBIDDEN";
 
   public static final String LOGIN_FAILED = "회원 정보가 존재하지 않습니다.";
+  public static final String USER_NOT_FOUND = "사용자를 찾을 수 없습니다.";
 
   public static final String EMPTY_DATA_TO_PAGING = "페이징을 위한 데이터가 존재하지 않습니다.";
   public static final String EMPTY_DATA_TO_APPROVE_SIGNUP = "회원 가입 요청 승인을 위한 데이터가 존재하지 않습니다.";
@@ -32,4 +33,18 @@ public class ErrorMessage {
   public static final String TOKEN_UN_AUTHORIZED = "UNAUTHORIZED";
   public static final String TOKEN_EXPIRED= "EXPIRED";
   public static final String TOKEN_VERIFICATION_FAILED= "VERIFICATION_FAILED";
+
+  public static final String EMPTY_DATA_TO_REQUEST_VACATION = "연차 신청 정보가 없습니다.";
+  public static final String VACATION_INFO_NOT_FOUND = "연차 정보를 찾을 수 없습니다.";
+  public static final String NOT_ENOUGH_REMAINING_VACATION_DAYS = "남은 연차일이 충분하지 않습니다.";
+  public static final String VACATION_NOT_FOUND = "요청한 연차가 존재하지 않습니다.";
+  public static final String EMPTY_DATA_TO_CANCEL_VACATION = "연차 취소 정보가 없습니다.";
+  public static final String UNAUTHORIZED_ACCESS_TO_VACATION = "연차에 대한 접근 권한이 없습니다.";
+  public static final String VACATION_CANNOT_BE_CANCELLED = "이미 승인된 연차는 취소할 수 없습니다.";
+
+  public static final String DUTY_ALREADY_EXISTS = "해당 날짜에 이미 당직이 있습니다.";
+  public static final String EMPTY_DATA_TO_REQUEST_DUTY = "당직 신청 정보가 없습니다.";
+  public static final String EMPTY_DATA_TO_CANCEL_DUTY = "당직 취소 정보가 없습니다.";
+  public static final String UNAUTHORIZED_ACCESS_TO_DUTY = "당직에 대한 접근 권한이 없습니다.";
+  public static final String DUTY_CANNOT_BE_CANCELLED = "이미 승인된 당직은 취소할 수 없습니다.";
 }

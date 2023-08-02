@@ -3,10 +3,7 @@ package com.example.core.model.schedule;
 import javax.persistence.*;
 
 import com.example.core.model.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Builder
 @AllArgsConstructor
@@ -24,6 +21,7 @@ public class VacationInfo {
   @JoinColumn(name = "user_id")
   private User user;
 
+  @Setter
   @Column(nullable = false)
   private int remainVacation;
 
@@ -34,10 +32,5 @@ public class VacationInfo {
   public void onCreate() {
     remainVacation = 0;
     usedVacation = 0;
-  }
-
-  public void updateInfo() {
-    this.remainVacation -= 1;
-    this.usedVacation += 1;
   }
 }
