@@ -1,4 +1,5 @@
 secret-key: 7f186169-ea6d-4bb8-80a1-148329b820c0
+aes-key: 53B7A77CA2E9BA6CAA901E3A7087E637
 
 server:
   port: 8080
