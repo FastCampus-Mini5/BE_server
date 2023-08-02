@@ -6,6 +6,7 @@ import com.example.application.user.service.UserService;
 import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.model.user.User;
 import com.example.core.util.ApiResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +36,11 @@ public class UserController {
 
   @PostMapping("/signin")
   public ResponseEntity<ApiResponse.Result<String>> signIn(
-      @RequestBody @Valid UserRequest.SignInDTO signInDTO, Errors errors) {
+      HttpServletRequest request,
+      @RequestBody @Valid UserRequest.SignInDTO signInDTO,
+      Errors errors) {
 
-    String jwt = userService.signIn(signInDTO);
+    String jwt = userService.signIn(request, signInDTO);
 
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.AUTHORIZATION, jwt);
