@@ -1,5 +1,6 @@
 package com.example.application.schedule.vacation.dto;
 
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.schedule.Reason;
 import com.example.core.model.schedule.Status;
 import com.example.core.model.schedule.Vacation;
@@ -70,6 +71,15 @@ public class VacationResponse {
                     .email(vacation.getUser().getEmail())
                     .startDate(vacation.getStartDate())
                     .endDate(vacation.getEndDate())
+                    .build();
+        }
+
+        public ListDTO decrypt(Encryption encryption) {
+            return ListDTO.builder()
+                    .username(encryption.decrypt(username))
+                    .email(encryption.decrypt(email))
+                    .startDate(startDate)
+                    .endDate(endDate)
                     .build();
         }
     }
