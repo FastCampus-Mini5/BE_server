@@ -84,4 +84,13 @@ public class UserController {
 
     return ResponseEntity.ok(ApiResponse.success(null));
   }
+
+  @PostMapping("/findPassword")
+  public ResponseEntity<ApiResponse.Result<?>> findPassword(
+      @RequestBody @Valid UserRequest.FindPasswordDTO findPasswordDTO, Errors errors) {
+    log.info("/api/user/findPassword " + findPasswordDTO);
+
+    userService.passwordReset(findPasswordDTO);
+    return ResponseEntity.ok(ApiResponse.success());
+  }
 }
