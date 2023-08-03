@@ -47,7 +47,7 @@ public class UserController {
 
     log.info("{}", ResponseEntity.ok().headers(headers).body(null));
 
-    return ResponseEntity.ok().headers(headers).body(null);
+    return ResponseEntity.ok().headers(headers).body(ApiResponse.success());
   }
 
   @GetMapping("/emailCheck")
