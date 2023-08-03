@@ -51,4 +51,7 @@ public class ErrorMessage {
   public static final String DUTY_CANNOT_BE_CANCELLED = "이미 승인된 당직은 취소할 수 없습니다.";
 
   public static final String EMAIL_SEND_FAILED = "이메일 전송 중 오류가 발생했습니다.";
+  public static final String INVALID_EMAIL = "유효하지 않은 이메일 주소입니다.";
+  public static final String INVALID_PASSWORD = "비밀번호는 영어 대문자, 영어 소문자, 숫자, 특수문자를 모두 포함해야 하며, 최소 8글자 이상이어야 합니다.";
+    public static final String INVALID_ADMIN_EMAIL = "유효하지 않은 관리자 정보입니다.";
 }
