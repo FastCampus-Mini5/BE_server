@@ -11,6 +11,8 @@ values (1, 'kjoJiIPBz6f5YQXgKxpurQ==', '$2a$10$fIlcyUbp4JxhQa2xUQIh5emZpfbycmqTA
        (5, '5HgZNdfxLiIBNlMYdx5E8A==', '$2a$10$fIlcyUbp4JxhQa2xUQIh5emZpfbycmqTAkN4im4df7Kj4bzxzKDmm', '/X/ItYtSw53opmqgyOem9g==', 'USER', date('2023-03-17'), '/image/default.png', date('2023-03-17'),
         date('2023-03-17')),
        (6, '5JWFP8E3hDvU2V8fvyd/Vw==', '$2a$10$fIlcyUbp4JxhQa2xUQIh5emZpfbycmqTAkN4im4df7Kj4bzxzKDmm', '+VtFqZ1lpfUj3w1/GzGLOw==', 'USER', date('2023-03-17'), '/image/default.png', date('2023-03-17'),
+        date('2023-03-17')),
+       (7, '4e763MpUxEh8+91H69EnRw==', '$2a$10$zbxTMhR86pzcIA7Hb0.aludfUUzu9ModAlHzNaJZUkaIaXx0iRJHK', '4e763MpUxEh8+91H69EnRw==', 'ADMIN', date('2023-03-17'), '/image/default.png', date('2023-03-17'),
         date('2023-03-17'));
 
 insert into vacation_tb
