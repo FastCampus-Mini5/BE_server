@@ -38,14 +38,3 @@ spring:
     init:
       mode: always
       data-locations: classpath:test/data.sql
-
-  mail:
-    host: smtp.naver.com
-    port: 465
-    username: jhss0113@naver.com
-    password: S87WC11S9H74
-
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.ssl.enable: true
-      mail.smtp.ssl.trust: smtp.naver.com
