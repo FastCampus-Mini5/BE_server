@@ -2,6 +2,7 @@ package com.example.application.schedule.vacation.service;
 
 import com.example.application.schedule.vacation.dto.VacationRequest;
 import com.example.application.schedule.vacation.dto.VacationResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.ErrorMessage;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.Exception400;
@@ -33,6 +34,7 @@ public class VacationService {
     private final UserRepository userRepository;
     private final VacationRepository vacationRepository;
     private final VacationInfoRepository vacationInfoRepository;
+    private final Encryption encryption;
 
     @Transactional
     public VacationResponse.VacationDTO requestVacation(VacationRequest.AddDTO vacationRequest, Long userId) {
@@ -99,6 +101,6 @@ public class VacationService {
         if (pageable == null) throw new EmptyPagingDataRequestException();
 
         Page<Vacation> allVacationsInYear = vacationRepository.findByStartDateYear(year, pageable);
-        return allVacationsInYear.map(VacationResponse.ListDTO::from);
+        return allVacationsInYear.map(VacationResponse.ListDTO::from).map(listDTO -> listDTO.decrypt(encryption));
     }
 }
