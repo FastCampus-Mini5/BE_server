@@ -39,3 +39,6 @@ spring:
         format_sql: true
         show_sql: true
     open-in-view: true
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
