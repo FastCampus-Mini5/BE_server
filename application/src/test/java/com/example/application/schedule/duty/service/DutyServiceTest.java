@@ -1,8 +1,10 @@
-package com.example.application;
+package com.example.application.schedule.duty.service;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.example.application.schedule.duty.dto.DutyRequest;
 import com.example.application.schedule.duty.dto.DutyResponse;
-import com.example.application.schedule.duty.service.DutyService;
 import com.example.core.errors.exception.Exception400;
 import com.example.core.errors.exception.Exception403;
 import com.example.core.errors.exception.Exception404;
@@ -11,6 +13,11 @@ import com.example.core.model.schedule.Status;
 import com.example.core.model.user.User;
 import com.example.core.repository.schedule.DutyRepository;
 import com.example.core.repository.user.UserRepository;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,15 +28,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DutyServiceTest {

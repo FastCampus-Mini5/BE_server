@@ -1,4 +1,4 @@
-package com.example.application;
+package com.example.application.schedule.vacation.service;
 
 import com.example.application.schedule.vacation.dto.VacationRequest;
 import com.example.application.schedule.vacation.dto.VacationResponse;
