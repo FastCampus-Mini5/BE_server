@@ -2,6 +2,7 @@ package com.example.admin.user.dto;
 
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.schedule.VacationInfo;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -35,5 +36,12 @@ public class UserResponse {
                     .remainVacation(remainVacation)
                     .build();
         }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class SignInDTO {
+
+        private String jwt;
     }
 }
