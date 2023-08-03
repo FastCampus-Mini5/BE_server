@@ -38,3 +38,7 @@ spring:
     init:
       mode: always
       data-locations: classpath:test/data.sql
+
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
