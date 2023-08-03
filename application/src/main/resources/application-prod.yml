@@ -1,0 +1,41 @@
+secret-key: ${JWT_SECRET_KEY}
+aes-key: ${AES_SECRET_KEY}
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+spring:
+  mail:
+    host: ${MAIL_SENDER_HOST}
+    port: ${MAIL_SENDER_PORT}
+    username: ${MAIL_SENDER_USERNAME}
+    password: ${MAIL_SENDER_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+      mail.smtp.ssl.trust: ${MAIL_SENDER_HOST}
+
+  datasource:
+    url: jdbc:${DB_TYPE}://${DB_URL}:${DB_PORT}/${DB_NAME}
+    driver-class-name: ${DB_DRIVER}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+  output:
+    ansi:
+      enabled: always
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    open-in-view: true
