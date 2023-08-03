@@ -2,11 +2,15 @@ package com.example.application.user.service;
 
 import com.example.application.user.dto.UserRequest;
 import com.example.application.user.dto.UserResponse;
+import com.example.application.utils.TempPasswordMailSender;
 import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.config._security.jwt.JwtTokenProvider;
 import com.example.core.errors.ErrorMessage;
+import com.example.core.errors.exception.EmptyDtoRequestException;
 import com.example.core.errors.exception.Exception500;
+import com.example.core.errors.exception.MailSendFailureException;
+import com.example.core.errors.exception.UserNotFoundException;
 import com.example.core.model.serverLog.ServerLog;
 import com.example.core.model.user.User;
 import com.example.core.repository.serverLog.ServerLogRepository;
@@ -14,6 +18,7 @@ import com.example.core.repository.user.SignUpRepository;
 import com.example.core.repository.user.UserRepository;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +27,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,6 +40,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final ServerLogRepository serverLogRepository;
   private final Encryption encryption;
+  private final TempPasswordMailSender mailSender;
 
   public void saveSignUpRequest(UserRequest.SignUpDTO signUpDTO) {
     if (signUpDTO == null) throw new Exception500(ErrorMessage.EMPTY_DATA_TO_SIGNUP);
@@ -137,5 +144,33 @@ public class UserService {
     user.setPassword(encryptedPassword);
 
     userRepository.save(user);
+  }
+
+  @Transactional
+  public void passwordReset(UserRequest.FindPasswordDTO findPasswordDTO) {
+    if (findPasswordDTO == null)
+      throw new EmptyDtoRequestException(ErrorMessage.EMPTY_DATA_TO_FIND_PASSWORD);
+
+    final String email = findPasswordDTO.getEmail();
+    String encryptedEmail = encryption.encrypt(email);
+
+    User user = userRepository.findByEmail(encryptedEmail)
+            .orElseThrow(() -> new UserNotFoundException(ErrorMessage.NOT_FOUND_USER_TO_RESET_PASSWORD));
+
+    String tempPassword = getRandomSixString();
+    String encodedPassword = passwordEncoder.encode(tempPassword);
+    user.setPassword(encodedPassword);
+
+    try{
+      mailSender.send(email, tempPassword);
+    } catch (Exception exception) {
+      throw new MailSendFailureException();
+    }
+  }
+
+  private String getRandomSixString() {
+    UUID uuid = UUID.randomUUID();
+    String uuidStr = uuid.toString().replace("-", "");
+    return uuidStr.substring(0, 6);
   }
 }
