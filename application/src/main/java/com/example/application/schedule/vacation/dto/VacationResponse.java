@@ -47,12 +47,14 @@ public class VacationResponse {
         private Long id;
         private Timestamp startDate;
         private Timestamp endDate;
+        private Status status;
 
         public static MyVacationDTO from(Vacation vacation) {
             return MyVacationDTO.builder()
                     .id(vacation.getId())
                     .startDate(vacation.getStartDate())
                     .endDate(vacation.getEndDate())
+                    .status(vacation.getStatus())
                     .build();
         }
     }
@@ -64,6 +66,7 @@ public class VacationResponse {
         private String email;
         private Timestamp startDate;
         private Timestamp endDate;
+        private Status status;
 
         public static ListDTO from(Vacation vacation) {
             return ListDTO.builder()
@@ -71,6 +74,7 @@ public class VacationResponse {
                     .email(vacation.getUser().getEmail())
                     .startDate(vacation.getStartDate())
                     .endDate(vacation.getEndDate())
+                    .status(vacation.getStatus())
                     .build();
         }
 
