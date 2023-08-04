@@ -16,11 +16,11 @@ values (1, 'kjoJiIPBz6f5YQXgKxpurQ==', '$2a$10$fIlcyUbp4JxhQa2xUQIh5emZpfbycmqTA
 insert into vacation_tb
 (id, user_id, created_date, start_date, end_date, reason, status, approval_date)
 values (1, 1, date('2023-07-27'), date('2023-07-27'), date('2023-07-27'), '휴가', 'PENDING', null),
-       (2, 2, date('2023-07-27'), date('2023-08-01'), date('2023-08-01'), '병가', 'PENDING', null),
-       (3, 3, date('2023-07-27'), date('2023-08-06'), date('2023-08-06'), '휴가', 'PENDING', null),
+       (2, 2, date('2023-07-27'), date('2023-08-01'), date('2023-08-01'), '병가', 'APPROVE', null),
+       (3, 3, date('2023-07-27'), date('2023-08-06'), date('2023-08-06'), '휴가', 'REJECT', null),
        (4, 4, date('2023-07-27'), date('2023-08-08'), date('2023-08-08'), '휴가', 'PENDING', null),
-       (5, 5, date('2023-07-27'), date('2023-07-30'), date('2023-07-30'), '병가', 'PENDING', null),
-       (6, 6, date('2023-07-27'), date('2023-08-07'), date('2023-08-07'), '휴가', 'PENDING', null);
+       (5, 5, date('2023-07-27'), date('2023-07-30'), date('2023-07-30'), '병가', 'APPROVE', null),
+       (6, 6, date('2023-07-27'), date('2023-08-07'), date('2023-08-07'), '휴가', 'REJECT', null);
 
 insert into vacation_info_tb
 (id, user_id, remain_vacation, used_vacation)
@@ -34,11 +34,11 @@ values (1, 1, 5, 2),
 insert into on_duty_tb
 (id, user_id, created_date, updated_date, duty_date, status, approval_date)
 values (1, 1, date('2023-07-27'), date('2023-07-27'), date('2023-07-27'), 'PENDING', null),
-       (2, 2, date('2023-07-27'), date('2023-08-01'), date('2023-08-01'), 'PENDING', null),
-       (3, 3, date('2023-07-27'), date('2023-08-06'), date('2023-08-06'), 'PENDING', null),
+       (2, 2, date('2023-07-27'), date('2023-08-01'), date('2023-08-01'), 'APPROVE', null),
+       (3, 3, date('2023-07-27'), date('2023-08-06'), date('2023-08-06'), 'REJECT', null),
        (4, 4, date('2023-07-27'), date('2023-08-08'), date('2023-08-08'), 'PENDING', null),
-       (5, 5, date('2023-07-27'), date('2023-07-30'), date('2023-07-30'), 'PENDING', null),
-       (6, 6, date('2023-07-27'), date('2023-08-07'), date('2023-08-07'), 'PENDING', null);
+       (5, 5, date('2023-07-27'), date('2023-07-30'), date('2023-07-30'), 'APPROVE', null),
+       (6, 6, date('2023-07-27'), date('2023-08-07'), date('2023-08-07'), 'REJECT', null);
 
 insert into log_tb
 (id, request_ip, sign_in_date, user_id)

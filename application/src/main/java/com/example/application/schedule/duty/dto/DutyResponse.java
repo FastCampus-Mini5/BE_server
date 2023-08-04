@@ -34,11 +34,13 @@ public class DutyResponse {
 
         private Long id;
         private Timestamp dutyDate;
+        private Status status;
 
         public static MyDutyDTO from(Duty duty) {
             return MyDutyDTO.builder()
                     .id(duty.getId())
                     .dutyDate(duty.getDutyDate())
+                    .status(duty.getStatus())
                     .build();
         }
     }
@@ -50,12 +52,14 @@ public class DutyResponse {
         private String username;
         private String email;
         private Timestamp dutyDate;
+        private Status status;
 
         public static ListDTO from(Duty duty) {
             return ListDTO.builder()
                     .username(duty.getUser().getUsername())
                     .email(duty.getUser().getEmail())
                     .dutyDate(duty.getDutyDate())
+                    .status(duty.getStatus())
                     .build();
         }
     }
