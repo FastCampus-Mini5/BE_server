@@ -2,6 +2,7 @@ package com.example.application.schedule.duty.service;
 
 import com.example.application.schedule.duty.dto.DutyRequest;
 import com.example.application.schedule.duty.dto.DutyResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.ErrorMessage;
 import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.Exception400;
@@ -12,15 +13,14 @@ import com.example.core.model.schedule.Status;
 import com.example.core.model.user.User;
 import com.example.core.repository.schedule.DutyRepository;
 import com.example.core.repository.user.UserRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -28,6 +28,7 @@ public class DutyService {
 
     private final DutyRepository dutyRepository;
     private final UserRepository userRepository;
+    private final Encryption encryption;
 
     @Transactional
     public DutyResponse.DutyDTO requestDuty(DutyRequest.AddDTO dutyRequest, Long userId) {
@@ -87,5 +88,14 @@ public class DutyService {
 
         Page<Duty> allDutiesInYear = dutyRepository.findByDutyDateYear(year, pageable);
         return allDutiesInYear.map(DutyResponse.ListDTO::from);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DutyResponse.ListDTO> getAllDutiesByYear(int year) {
+        List<Duty> allDutiesInYear = dutyRepository.findByDutyDateYear(year);
+        return allDutiesInYear.stream()
+                .map(DutyResponse.ListDTO::from)
+                .map(dto->dto.decrypt(encryption))
+                .collect(Collectors.toList());
     }
 }
