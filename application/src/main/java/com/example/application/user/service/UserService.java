@@ -11,8 +11,10 @@ import com.example.core.errors.exception.EmptyDtoRequestException;
 import com.example.core.errors.exception.Exception500;
 import com.example.core.errors.exception.MailSendFailureException;
 import com.example.core.errors.exception.UserNotFoundException;
+import com.example.core.model.schedule.VacationInfo;
 import com.example.core.model.serverLog.ServerLog;
 import com.example.core.model.user.User;
+import com.example.core.repository.schedule.VacationInfoRepository;
 import com.example.core.repository.serverLog.ServerLogRepository;
 import com.example.core.repository.user.SignUpRepository;
 import com.example.core.repository.user.UserRepository;
@@ -38,6 +40,7 @@ public class UserService {
   private final AuthenticationManager authenticationManager;
   private final SignUpRepository signUpRepository;
   private final UserRepository userRepository;
+  private final VacationInfoRepository vacationInfoRepository;
   private final ServerLogRepository serverLogRepository;
   private final Encryption encryption;
   private final TempPasswordMailSender mailSender;
@@ -119,12 +122,15 @@ public class UserService {
   public UserResponse.UserInfoDTO getUserInfoByUserId(Long userId) {
 
     User user = userRepository.getReferenceById(userId);
+    VacationInfo vacationInfo = vacationInfoRepository.getReferenceByUserId(userId);
 
     return UserResponse.UserInfoDTO.builder()
         .email(user.getEmail())
         .username(user.getUsername())
         .profileImage(user.getProfileImage())
         .hireDate(user.getHireDate())
+        .remainVacation(vacationInfo.getRemainVacation())
+        .usedVacation(vacationInfo.getUsedVacation())
         .build()
         .toDecryptedDTO(encryption);
   }
