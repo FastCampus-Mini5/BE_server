@@ -103,4 +103,13 @@ public class VacationService {
         Page<Vacation> allVacationsInYear = vacationRepository.findByStartDateYear(year, pageable);
         return allVacationsInYear.map(VacationResponse.ListDTO::from).map(listDTO -> listDTO.decrypt(encryption));
     }
+
+    @Transactional(readOnly = true)
+    public List<VacationResponse.ListDTO> getAllVacationsByYear(int year) {
+        List<Vacation> allVacationsInYear = vacationRepository.findByStartDateYear(year);
+        return allVacationsInYear.stream()
+                .map(VacationResponse.ListDTO::from)
+                .map(listDTO -> listDTO.decrypt(encryption))
+                .collect(Collectors.toList());
+    }
 }

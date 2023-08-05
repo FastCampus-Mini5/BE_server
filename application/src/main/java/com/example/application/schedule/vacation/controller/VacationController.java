@@ -54,13 +54,22 @@ public class VacationController {
         return ResponseEntity.ok(ApiResponse.success(myVacationResponse));
     }
 
-    @GetMapping("/all/list")
+//    @GetMapping("/all/list")
     public ResponseEntity<ApiResponse.Result<Page<VacationResponse.ListDTO>>> getAllVacationsByYear(
             @PageableDefault(size = 10) Pageable pageable,
             @RequestParam("year") int year) {
         log.info("GET /api/user/vacation/all/list " + year);
 
         Page<VacationResponse.ListDTO> listResponse = vacationService.getAllVacationsByYear(year, pageable);
+        return ResponseEntity.ok(ApiResponse.success(listResponse));
+    }
+
+    @GetMapping("/all/list")
+    public ResponseEntity<ApiResponse.Result<List<VacationResponse.ListDTO>>> getAllVacationsByYear(
+            @RequestParam("year") int year) {
+        log.info("GET /api/user/vacation/all/list " + year);
+
+        List<VacationResponse.ListDTO> listResponse = vacationService.getAllVacationsByYear(year);
         return ResponseEntity.ok(ApiResponse.success(listResponse));
     }
 }
