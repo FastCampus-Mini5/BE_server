@@ -1,5 +1,6 @@
 package com.example.application.schedule.duty.dto;
 
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.schedule.Duty;
 import com.example.core.model.schedule.Status;
 import lombok.*;
@@ -53,6 +54,15 @@ public class DutyResponse {
         private String email;
         private Timestamp dutyDate;
         private Status status;
+
+        public DutyResponse.ListDTO decrypt(Encryption encryption) {
+            return ListDTO.builder()
+                    .username(encryption.decrypt(username))
+                    .email(encryption.decrypt(email))
+                    .dutyDate(dutyDate)
+                    .status(status)
+                    .build();
+        }
 
         public static ListDTO from(Duty duty) {
             return ListDTO.builder()
