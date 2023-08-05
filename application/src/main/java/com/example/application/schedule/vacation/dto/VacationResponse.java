@@ -84,6 +84,7 @@ public class VacationResponse {
                     .email(encryption.decrypt(email))
                     .startDate(startDate)
                     .endDate(endDate)
+                    .status(status)
                     .build();
         }
     }
