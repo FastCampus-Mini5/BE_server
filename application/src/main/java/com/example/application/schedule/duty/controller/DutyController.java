@@ -56,13 +56,22 @@ public class DutyController {
         return ResponseEntity.ok(ApiResponse.success(myDutyResponse));
     }
 
-    @GetMapping("/all/list")
+//    @GetMapping("/all/list")
     public ResponseEntity<ApiResponse.Result<Page<DutyResponse.ListDTO>>> getAllDutiesByYear(
             @PageableDefault(size = 10) Pageable pageable,
             @RequestParam("year") int year) {
         log.info("GET /api/user/duty/all/list " + year);
 
         Page<DutyResponse.ListDTO> listResponse = dutyService.getAllDutiesByYear(year, pageable);
+        return ResponseEntity.ok(ApiResponse.success(listResponse));
+    }
+
+    @GetMapping("/all/list")
+    public ResponseEntity<ApiResponse.Result<List<DutyResponse.ListDTO>>> getAllDutiesByYear(
+            @RequestParam("year") int year) {
+        log.info("GET /api/user/duty/all/list " + year);
+
+        List<DutyResponse.ListDTO> listResponse = dutyService.getAllDutiesByYear(year);
         return ResponseEntity.ok(ApiResponse.success(listResponse));
     }
 }
