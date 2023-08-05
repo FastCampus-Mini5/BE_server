@@ -21,6 +21,8 @@ public class UserResponse {
     private String username;
     private String email;
     private String profileImage;
+    private Integer remainVacation;
+    private Integer usedVacation;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private Timestamp hireDate;
@@ -34,6 +36,8 @@ public class UserResponse {
           .email(decryptedEmail)
           .profileImage(profileImage)
           .hireDate(hireDate)
+          .remainVacation(remainVacation)
+          .usedVacation(usedVacation)
           .build();
     }
   }
