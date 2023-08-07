@@ -4,7 +4,6 @@ import com.example.application.schedule.vacation.dto.VacationRequest;
 import com.example.application.schedule.vacation.dto.VacationResponse;
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.ErrorMessage;
-import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.Exception400;
 import com.example.core.errors.exception.Exception403;
 import com.example.core.errors.exception.Exception404;
@@ -17,8 +16,6 @@ import com.example.core.repository.schedule.VacationRepository;
 import com.example.core.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -93,15 +90,6 @@ public class VacationService {
 
         List<Vacation> myVacationsInYear = vacationRepository.findByYearAndUser(year, user);
         return myVacationsInYear.stream().map(VacationResponse.MyVacationDTO::from).collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public Page<VacationResponse.ListDTO> getAllVacationsByYear(int year, Pageable pageable) {
-
-        if (pageable == null) throw new EmptyPagingDataRequestException();
-
-        Page<Vacation> allVacationsInYear = vacationRepository.findByStartDateYear(year, pageable);
-        return allVacationsInYear.map(VacationResponse.ListDTO::from).map(listDTO -> listDTO.decrypt(encryption));
     }
 
     @Transactional(readOnly = true)

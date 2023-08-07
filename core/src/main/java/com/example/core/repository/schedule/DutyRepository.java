@@ -23,8 +23,5 @@ public interface DutyRepository extends JpaRepository<Duty, Long> {
     Page<Duty> findDutyByStatus(Pageable pageable, Status status);
 
     @Query("SELECT d FROM Duty d WHERE YEAR(d.dutyDate) = :year")
-    Page<Duty> findByDutyDateYear(@Param("year") int year, Pageable pageable);
-
-    @Query("SELECT d FROM Duty d WHERE YEAR(d.dutyDate) = :year")
     List<Duty> findByDutyDateYear(@Param("year") int year);
 }

@@ -4,7 +4,6 @@ import com.example.application.schedule.duty.dto.DutyRequest;
 import com.example.application.schedule.duty.dto.DutyResponse;
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.ErrorMessage;
-import com.example.core.errors.exception.EmptyPagingDataRequestException;
 import com.example.core.errors.exception.Exception400;
 import com.example.core.errors.exception.Exception403;
 import com.example.core.errors.exception.Exception404;
@@ -17,8 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,15 +76,6 @@ public class DutyService {
 
         List<Duty> myDutiesInYear = dutyRepository.findByYearAndUser(year, user);
         return myDutiesInYear.stream().map(DutyResponse.MyDutyDTO::from).collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public Page<DutyResponse.ListDTO> getAllDutiesByYear(int year, Pageable pageable) {
-
-        if (pageable == null) throw new EmptyPagingDataRequestException();
-
-        Page<Duty> allDutiesInYear = dutyRepository.findByDutyDateYear(year, pageable);
-        return allDutiesInYear.map(DutyResponse.ListDTO::from);
     }
 
     @Transactional(readOnly = true)

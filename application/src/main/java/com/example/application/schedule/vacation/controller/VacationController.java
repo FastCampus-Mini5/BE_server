@@ -7,9 +7,6 @@ import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -52,16 +49,6 @@ public class VacationController {
         Long userId = userDetails.getUser().getId();
         List<VacationResponse.MyVacationDTO> myVacationResponse = vacationService.getMyVacationsByYear(year, userId);
         return ResponseEntity.ok(ApiResponse.success(myVacationResponse));
-    }
-
-//    @GetMapping("/all/list")
-    public ResponseEntity<ApiResponse.Result<Page<VacationResponse.ListDTO>>> getAllVacationsByYear(
-            @PageableDefault(size = 10) Pageable pageable,
-            @RequestParam("year") int year) {
-        log.info("GET /api/user/vacation/all/list " + year);
-
-        Page<VacationResponse.ListDTO> listResponse = vacationService.getAllVacationsByYear(year, pageable);
-        return ResponseEntity.ok(ApiResponse.success(listResponse));
     }
 
     @GetMapping("/all/list")
