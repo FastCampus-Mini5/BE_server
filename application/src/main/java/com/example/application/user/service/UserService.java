@@ -42,7 +42,7 @@ public class UserService {
   public void saveSignUpRequest(UserRequest.SignUpDTO signUpDTO) {
     if (signUpDTO == null) throw new Exception500(ErrorMessage.EMPTY_DATA_TO_SIGNUP);
 
-    signUpRepository.save(signUpDTO.toEntityEncrypted(passwordEncoder, encryption));
+    signUpRepository.save(signUpDTO.toEncryptedEntity(passwordEncoder, encryption));
   }
 
   public String signIn(UserRequest.SignInDTO signInDTO) {
@@ -115,14 +115,17 @@ public class UserService {
     final String email = findPasswordDTO.getEmail();
     String encryptedEmail = encryption.encrypt(email);
 
-    User user = userRepository.findByEmail(encryptedEmail)
-            .orElseThrow(() -> new UserNotFoundException(ErrorMessage.NOT_FOUND_USER_TO_RESET_PASSWORD));
+    User user =
+        userRepository
+            .findByEmail(encryptedEmail)
+            .orElseThrow(
+                () -> new UserNotFoundException(ErrorMessage.NOT_FOUND_USER_TO_RESET_PASSWORD));
 
     String tempPassword = getRandomSixString();
     String encodedPassword = passwordEncoder.encode(tempPassword);
     user.setPassword(encodedPassword);
 
-    try{
+    try {
       mailSender.send(email, tempPassword);
     } catch (Exception exception) {
       throw new MailSendFailureException();
