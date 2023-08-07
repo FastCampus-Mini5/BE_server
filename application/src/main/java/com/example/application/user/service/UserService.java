@@ -39,12 +39,15 @@ public class UserService {
   private final Encryption encryption;
   private final TempPasswordMailSender mailSender;
 
+  @Transactional
   public void saveSignUpRequest(UserRequest.SignUpDTO signUpDTO) {
-    if (signUpDTO == null) throw new Exception500(ErrorMessage.EMPTY_DATA_TO_SIGNUP);
+    if (signUpRepository.existsByEmail(signUpDTO.getEmail()))
+      throw new Exception400(ErrorMessage.DUPLICATED_EMAIL);
 
     signUpRepository.save(signUpDTO.toEncryptedEntity(passwordEncoder, encryption));
   }
 
+  @Transactional(readOnly = true)
   public String signIn(UserRequest.SignInDTO signInDTO) {
     if (signInDTO == null) throw new Exception500(ErrorMessage.EMPTY_DATA_TO_SIGNIN);
 
@@ -61,6 +64,7 @@ public class UserService {
     return JwtTokenProvider.create(user);
   }
 
+  @Transactional(readOnly = true)
   public UserResponse.AvailableEmailDTO checkEmail(UserRequest.CheckEmailDTO checkEmailDTO) {
     if (checkEmailDTO == null) throw new Exception500(ErrorMessage.EMPTY_DATA_TO_CHECK_EMAIL);
 
@@ -74,6 +78,7 @@ public class UserService {
     return UserResponse.AvailableEmailDTO.builder().email(plainEmail).available(true).build();
   }
 
+  @Transactional(readOnly = true)
   public UserResponse.UserInfoDTO getUserInfoByUserId(Long userId) {
 
     User user = userRepository.getReferenceById(userId);
@@ -90,6 +95,7 @@ public class UserService {
         .toDecryptedDTO(encryption);
   }
 
+  @Transactional
   public void updateUserInfoByUserId(Long userId, UserRequest.UpdateInfoDTO updateInfoDTO) {
     User user =
         userRepository
