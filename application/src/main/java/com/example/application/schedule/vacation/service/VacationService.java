@@ -61,11 +61,10 @@ public class VacationService {
     }
 
     @Transactional
-    public VacationResponse.VacationDTO cancelVacation(VacationRequest.CancelDTO cancelDTO, Long userId) {
+    public VacationResponse.VacationDTO cancelVacation(Long id, Long userId) {
 
-        if (cancelDTO == null) throw new Exception400(ErrorMessage.EMPTY_DATA_TO_CANCEL_VACATION);
+        if (id == null) throw new Exception400(ErrorMessage.EMPTY_DATA_TO_CANCEL_VACATION);
 
-        Long id = cancelDTO.getId();
         Vacation vacation = vacationRepository.findById(id)
                 .orElseThrow(() -> new Exception404(ErrorMessage.VACATION_NOT_FOUND));
 
@@ -81,6 +80,7 @@ public class VacationService {
         Vacation savedVacation = vacationRepository.save(vacation);
         return VacationResponse.VacationDTO.from(savedVacation);
     }
+
 
     @Transactional(readOnly = true)
     public List<VacationResponse.MyVacationDTO> getMyVacationsByYear(int year, Long userId) {

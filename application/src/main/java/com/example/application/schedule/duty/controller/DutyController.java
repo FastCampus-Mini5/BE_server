@@ -33,12 +33,10 @@ public class DutyController {
     }
 
     @DeleteMapping("/cancel")
-    public ResponseEntity<ApiResponse.Result<DutyResponse.DutyDTO>> cancel(@RequestBody @Valid DutyRequest.CancelDTO cancelDTO,
+    public ResponseEntity<ApiResponse.Result<DutyResponse.DutyDTO>> cancel(@RequestParam Long id,
                                                                            @AuthenticationPrincipal PrincipalUserDetail userDetails) {
-
         Long userId = userDetails.getUser().getId();
-        DutyResponse.DutyDTO cancelledDuty = dutyService.cancelDuty(cancelDTO, userId);
-
+        DutyResponse.DutyDTO cancelledDuty = dutyService.cancelDuty(id, userId);
         return ResponseEntity.ok(ApiResponse.success(cancelledDuty));
     }
 
@@ -46,7 +44,7 @@ public class DutyController {
     public ResponseEntity<ApiResponse.Result<List<DutyResponse.MyDutyDTO>>> getMyDutiesByYear(
             @RequestParam("year") int year,
             @AuthenticationPrincipal PrincipalUserDetail userDetails) {
-        log.info("GET /api/user/myduty " + year);
+        log.info("GET /api/user/duty/myduty " + year);
 
         Long userId = userDetails.getUser().getId();
         List<DutyResponse.MyDutyDTO> myDutyResponse = dutyService.getMyDutiesByYear(year, userId);

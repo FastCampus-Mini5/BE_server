@@ -47,11 +47,10 @@ public class DutyService {
     }
 
     @Transactional
-    public DutyResponse.DutyDTO cancelDuty(DutyRequest.CancelDTO cancelDTO, Long userId) {
+    public DutyResponse.DutyDTO cancelDuty(Long id, Long userId) {
 
-        if (cancelDTO == null) throw new Exception400(ErrorMessage.EMPTY_DATA_TO_CANCEL_DUTY);
+        if (id == null) throw new Exception400(ErrorMessage.EMPTY_DATA_TO_CANCEL_DUTY);
 
-        Long id = cancelDTO.getId();
         Duty duty = dutyRepository.findById(id)
                 .orElseThrow(() -> new Exception404(ErrorMessage.NOT_FOUND_DUTY));
 

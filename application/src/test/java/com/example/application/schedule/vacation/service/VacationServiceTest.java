@@ -130,10 +130,6 @@ class VacationServiceTest {
         Long userId = 1L;
         Long vacationId = 1L;
 
-        VacationRequest.CancelDTO cancelDTO = VacationRequest.CancelDTO.builder()
-                .id(vacationId)
-                .build();
-
         User user = createUser(userId, "user1");
         Vacation vacation = createVacation(vacationId, user, "2023-07-01 00:00:00", "2023-07-03 00:00:00", Status.PENDING);
 
@@ -141,7 +137,7 @@ class VacationServiceTest {
         when(vacationRepository.save(any(Vacation.class))).thenReturn(vacation);
 
         // when
-        VacationResponse.VacationDTO result = vacationService.cancelVacation(cancelDTO, userId);
+        VacationResponse.VacationDTO result = vacationService.cancelVacation(vacationId, userId);
 
         // then
         assertNotNull(result);
@@ -162,12 +158,11 @@ class VacationServiceTest {
     void cancelVacation_Fail_InvalidVacationId() {
         // given
         Long invalidVacationId = 999L;
-        VacationRequest.CancelDTO cancelDTO = new VacationRequest.CancelDTO(invalidVacationId);
 
         when(vacationRepository.findById(invalidVacationId)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(Exception404.class, () -> vacationService.cancelVacation(cancelDTO, 1L));
+        assertThrows(Exception404.class, () -> vacationService.cancelVacation(invalidVacationId, 1L));
 
         verify(vacationRepository, times(1)).findById(invalidVacationId);
     }
@@ -178,14 +173,13 @@ class VacationServiceTest {
         // given
         Long userId = 1L;
         Long vacationId = 1L;
-        VacationRequest.CancelDTO cancelDTO = new VacationRequest.CancelDTO(vacationId);
 
         User user = createUser(userId, "user1");
         Vacation vacation = createVacation(vacationId, user, "2023-07-01 00:00:00", "2023-07-03 00:00:00", Status.APPROVE);
         when(vacationRepository.findById(vacationId)).thenReturn(Optional.of(vacation));
 
         // when, then
-        assertThrows(Exception403.class, () -> vacationService.cancelVacation(cancelDTO, userId));
+        assertThrows(Exception403.class, () -> vacationService.cancelVacation(vacationId, userId));
 
         verify(vacationRepository, times(1)).findById(vacationId);
     }
@@ -264,6 +258,7 @@ class VacationServiceTest {
         assertEquals("user2", result.get(1).getUsername());
 
         verify(vacationRepository, times(1)).findByStartDateYear(year);
+        verify(encryption, times(4)).decrypt(anyString());
     }
 
     private Vacation createVacation(Long id, User user, String startDate, String endDate, Status status) {

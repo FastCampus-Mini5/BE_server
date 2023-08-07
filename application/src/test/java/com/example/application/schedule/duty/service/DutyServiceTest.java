@@ -115,10 +115,6 @@ class DutyServiceTest {
         Long userId = 1L;
         Long dutyId = 1L;
 
-        DutyRequest.CancelDTO cancelDTO = DutyRequest.CancelDTO.builder()
-                .id(dutyId)
-                .build();
-
         User user = createUser(userId, "user1");
         Duty duty = createDuty(dutyId, user, "2023-07-01 00:00:00");
 
@@ -126,7 +122,7 @@ class DutyServiceTest {
         when(dutyRepository.save(any(Duty.class))).thenReturn(duty);
 
         // when
-        DutyResponse.DutyDTO result = dutyService.cancelDuty(cancelDTO, userId);
+        DutyResponse.DutyDTO result = dutyService.cancelDuty(dutyId, userId);
 
         // then
         assertNotNull(result);
@@ -146,14 +142,10 @@ class DutyServiceTest {
         Long userId = 1L;
         Long invalidDutyId = 999L;
 
-        DutyRequest.CancelDTO cancelDTO = DutyRequest.CancelDTO.builder()
-                .id(invalidDutyId)
-                .build();
-
         when(dutyRepository.findById(invalidDutyId)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(Exception404.class, () -> dutyService.cancelDuty(cancelDTO, userId));
+        assertThrows(Exception404.class, () -> dutyService.cancelDuty(invalidDutyId, userId));
 
         verify(dutyRepository, times(1)).findById(invalidDutyId);
         verify(dutyRepository, never()).save(any(Duty.class));
@@ -166,10 +158,6 @@ class DutyServiceTest {
         Long userId = 1L;
         Long dutyId = 1L;
 
-        DutyRequest.CancelDTO cancelDTO = DutyRequest.CancelDTO.builder()
-                .id(dutyId)
-                .build();
-
         User user = createUser(userId, "user1");
         Duty approvedDuty = createDuty(dutyId, user, "2023-07-01 00:00:00");
         approvedDuty.updateStatus(Status.APPROVE);
@@ -177,7 +165,7 @@ class DutyServiceTest {
         when(dutyRepository.findById(dutyId)).thenReturn(Optional.of(approvedDuty));
 
         // when, then
-        assertThrows(Exception403.class, () -> dutyService.cancelDuty(cancelDTO, userId));
+        assertThrows(Exception403.class, () -> dutyService.cancelDuty(dutyId, userId));
 
         verify(dutyRepository, times(1)).findById(dutyId);
         verify(dutyRepository, never()).save(any(Duty.class));

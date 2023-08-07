@@ -32,10 +32,10 @@ public class VacationController {
     }
 
     @DeleteMapping("/cancel")
-    public ResponseEntity<ApiResponse.Result<VacationResponse.VacationDTO>> cancel(@RequestBody @Valid VacationRequest.CancelDTO cancelDTO,
+    public ResponseEntity<ApiResponse.Result<VacationResponse.VacationDTO>> cancel(@RequestParam Long id,
                                                                                    @AuthenticationPrincipal PrincipalUserDetail userDetails) {
         Long userId = userDetails.getUser().getId();
-        VacationResponse.VacationDTO cancelledVacation = vacationService.cancelVacation(cancelDTO, userId);
+        VacationResponse.VacationDTO cancelledVacation = vacationService.cancelVacation(id, userId);
 
         return ResponseEntity.ok(ApiResponse.success(cancelledVacation));
     }
@@ -44,7 +44,7 @@ public class VacationController {
     public ResponseEntity<ApiResponse.Result<List<VacationResponse.MyVacationDTO>>> getMyVacationsByYear(
             @RequestParam("year") int year,
             @AuthenticationPrincipal PrincipalUserDetail userDetails) {
-        log.info("GET /api/user/myvacation " + year);
+        log.info("GET /api/user/vacation/myvacation " + year);
 
         Long userId = userDetails.getUser().getId();
         List<VacationResponse.MyVacationDTO> myVacationResponse = vacationService.getMyVacationsByYear(year, userId);
