@@ -23,7 +23,7 @@ public class DutyController {
 
     private final DutyService dutyService;
 
-    @PostMapping("/approve")
+    @PostMapping("/proceed")
     public ResponseEntity<ApiResponse.Result<String>> dutyApprove(
             @RequestBody @Valid DutyRequest.StatusDTO statusDTO, Error error) {
         dutyService.updateByStatus(statusDTO);
