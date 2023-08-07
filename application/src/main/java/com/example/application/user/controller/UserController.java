@@ -1,7 +1,10 @@
 package com.example.application.user.controller;
 
+import static com.example.core.config._security.jwt.JwtTokenProvider.TOKEN_PREFIX;
+
 import com.example.application.user.dto.UserRequest;
 import com.example.application.user.dto.UserResponse;
+import com.example.application.user.service.LoggingService;
 import com.example.application.user.service.UserService;
 import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.model.user.User;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private final UserService userService;
+  private final LoggingService loggingService;
 
   @PostMapping("/signup")
   public ResponseEntity<ApiResponse.Result<User>> signup(
@@ -40,14 +44,40 @@ public class UserController {
       @RequestBody @Valid UserRequest.SignInDTO signInDTO,
       Errors errors) {
 
-    String jwt = userService.signIn(request, signInDTO);
+    String jwt = userService.signIn(signInDTO);
+
+    if (jwt.startsWith(TOKEN_PREFIX))
+      loggingService.logging(signInDTO.getEmail(), getClientIP(request));
 
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.AUTHORIZATION, jwt);
 
-    log.info("{}", ResponseEntity.ok().headers(headers).body(null));
+    log.info("{}", ResponseEntity.ok().headers(headers).body(ApiResponse.success()));
 
     return ResponseEntity.ok().headers(headers).body(ApiResponse.success());
+  }
+
+  private String getClientIP(HttpServletRequest request) {
+    final String[] headerNames = {
+      "X-Forwarded-For",
+      "Proxy-Client-IP",
+      "WL-Proxy-Client-IP",
+      "HTTP_CLIENT_IP",
+      "HTTP_X_FORWARDED_FOR"
+    };
+
+    for (String header : headerNames) {
+      String ipAddress = request.getHeader(header);
+      if (ipAddress != null && !ipAddress.isEmpty() && !"unknown".equalsIgnoreCase(ipAddress)) {
+        // 일부 프록시들은 쉼표로 구분된 IP 주소 목록을 사용하며, 실제 클라이언트 IP는 첫 번째로 옵니다.
+        if (ipAddress.contains(",")) {
+          return ipAddress.split(",")[0].trim();
+        }
+        return ipAddress;
+      }
+    }
+
+    return request.getRemoteAddr();
   }
 
   @GetMapping("/emailCheck")

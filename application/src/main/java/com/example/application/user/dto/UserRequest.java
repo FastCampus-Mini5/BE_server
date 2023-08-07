@@ -38,7 +38,7 @@ public class UserRequest {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private Timestamp hireDate;
 
-    public SignUp toEntityEncrypted(PasswordEncoder passwordEncoder, Encryption encryption) {
+    public SignUp toEncryptedEntity(PasswordEncoder passwordEncoder, Encryption encryption) {
       String encryptedUsername = encryption.encrypt(username);
       String encodedPassword = passwordEncoder.encode(this.password);
       String encryptedEmail = encryption.encrypt(email);
