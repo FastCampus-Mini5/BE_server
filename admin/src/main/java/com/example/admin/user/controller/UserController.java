@@ -37,7 +37,7 @@ public class UserController {
     public ResponseEntity<ApiResponse.Result<Object>> signIn(
             @RequestBody @Valid UserRequest.SignInDTO signInDTO,
             Errors errors) {
-        log.info("POST /api/admin/user/list " + signInDTO);
+        log.info("POST /api/admin/user/signIn" + signInDTO);
 
         UserResponse.SignInDTO signInResponse = userService.signIn(signInDTO);
         return ResponseEntity.ok()
