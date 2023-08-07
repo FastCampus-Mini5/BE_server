@@ -1,8 +1,5 @@
 package com.example.application.user.dto;
 
-import static com.example.core.errors.ErrorMessage.INVALID_EMAIL;
-import static com.example.core.errors.ErrorMessage.INVALID_PASSWORD;
-
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.user.SignUp;
 import com.fasterxml.jackson.annotation.JsonFormat;
