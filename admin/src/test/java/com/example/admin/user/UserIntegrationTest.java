@@ -16,10 +16,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.yml")
+@ActiveProfiles("test")
 public class UserIntegrationTest {
 
     @Autowired
