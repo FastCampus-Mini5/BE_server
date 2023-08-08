@@ -57,4 +57,5 @@ public class ErrorMessage {
   public static final String INVALID_ADMIN_EMAIL = "유효하지 않은 관리자 정보입니다.";
 
   public static final String DUPLICATED_EMAIL = "해당 이메일의 회원 가입 요청이 존재합니다.";
+  public static final String PASSWORD_NOT_MATCH = "비밀번호가 일치하지 않습니다.";
 }
