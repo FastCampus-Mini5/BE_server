@@ -15,6 +15,7 @@ public class DutyResponse {
     @Builder
     public static class ListDTO {
 
+        private Long id;
         private String username;
         private String email;
         private Timestamp dutyDate;
@@ -22,6 +23,7 @@ public class DutyResponse {
 
         public DutyResponse.ListDTO decrypt(Encryption encryption) {
             return ListDTO.builder()
+                    .id(id)
                     .username(encryption.decrypt(username))
                     .email(encryption.decrypt(email))
                     .dutyDate(dutyDate)
@@ -31,6 +33,7 @@ public class DutyResponse {
 
         public static ListDTO form(Duty duty) {
             return ListDTO.builder()
+                    .id(duty.getId())
                     .username(duty.getUser().getUsername())
                     .email(duty.getUser().getEmail())
                     .dutyDate(duty.getDutyDate())

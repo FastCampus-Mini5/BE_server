@@ -14,6 +14,8 @@ public class VacationResponse {
     @AllArgsConstructor
     @Builder
     public static class ListDTO {
+
+        private Long id;
         private String username;
         private String email;
         private Reason reason;
@@ -23,6 +25,7 @@ public class VacationResponse {
 
         public ListDTO decrypt(Encryption encryption) {
             return ListDTO.builder()
+                    .id(id)
                     .username(encryption.decrypt(username))
                     .email(encryption.decrypt(email))
                     .reason(reason)
@@ -34,6 +37,7 @@ public class VacationResponse {
 
         public static ListDTO form(Vacation vacation) {
             return ListDTO.builder()
+                    .id(vacation.getId())
                     .username(vacation.getUser().getUsername())
                     .email(vacation.getUser().getEmail())
                     .reason(vacation.getReason())
