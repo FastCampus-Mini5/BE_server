@@ -20,6 +20,8 @@ values (1, 'kjoJiIPBz6f5YQXgKxpurQ==', '$2a$10$YI4Mh0gwbeKw12Wjo0/OPOgNFNg9h2GZR
         date('2023-03-17')),
        (10, 'YTdARKcFYOKmP9rexFG87g==', '$2a$10$YI4Mh0gwbeKw12Wjo0/OPOgNFNg9h2GZRmtbzWcCgaBOIJqOSnur.', 'q+ggvsgjm7waV879YZKJYg==', 'USER', date('2023-08-06'), '/image/default.png', date('2023-03-17'),
         date('2023-03-17')),
+       (80, '4e763MpUxEh8+91H69EnRw==', '$2a$10$zbxTMhR86pzcIA7Hb0.aludfUUzu9ModAlHzNaJZUkaIaXx0iRJHK', '4e763MpUxEh8+91H69EnRw==', 'ADMIN', date('2023-03-17'), '/image/default.png', date('2023-03-17'),
+        date('2023-03-17')),
        (100, 'vYmi29ELW93OC2X8IvZeEcYSH75XSiou3NU+1JYquqI=', '$2a$10$v8FySam6mvG18prce/3Vu.4.pNPIcbRYObbuSGfeC41yQ4PyHVy0u', '4e763MpUxEh8+91H69EnRw==', 'ADMIN', date('2023-03-17'), '/image/default.png', date('2023-03-17'),
         date('2023-03-17')),
        (200, 'wL0RQKcssRtFW0nUSRMJcJ4GCZ+Mu19OIh0T/d54fWs=', '$2a$10$WvBthERMv4stQe4aU0IZNOFKoBc08.TEP1LdY59X8Bk8el3LPWQ7a', 'bhyOYqovPimR7IBuX74dfA==', 'ADMIN', date('2023-03-17'), '/image/default.png', date('2023-03-17'),
@@ -39,7 +41,7 @@ values (1, 1, date('2023-08-07'), date('2023-08-28'), date('2023-08-29'), '휴�
        (10, 10, date('2023-07-27'), date('2023-08-14'), date('2023-08-16'), '기타사항', 'APPROVE', date('2023-08-01'));
 
 insert into vacation_info_tb
-    (id, user_id, remain_vacation, used_vacation)
+(id, user_id, remain_vacation, used_vacation)
 values (1, 1, 5, 2),
        (2, 2, 6, 3),
        (3, 3, 7, 4),
@@ -65,7 +67,7 @@ values (1, 1, date('2023-07-27'), date('2023-08-27'), date('2023-08-27'), 'PENDI
        (10, 10, date('2023-07-17'), date('2023-07-30'), date('2023-07-30'), 'APPROVE', date('2023-08-08'));
 
 insert into log_tb
-    (id, request_ip, sign_in_date, user_id)
+(id, request_ip, sign_in_date, user_id)
 values (1, '127.0.0.1', date('2023-07-26'), 1),
        (2, '127.0.0.1', date('2023-07-27'), 1),
        (3, '127.0.0.1', date('2023-07-28'), 1),
@@ -74,7 +76,7 @@ values (1, '127.0.0.1', date('2023-07-26'), 1),
        (6, '127.0.0.4', date('2023-07-27'), 4);
 
 insert into sign_up_tb
-    (id, email, password, username, hire_date, created_date)
+(id, email, password, username, hire_date, created_date)
 values (1, '08AddoLhJyEmYONIQGFmWw==', '$2a$10$YI4Mh0gwbeKw12Wjo0/OPOgNFNg9h2GZRmtbzWcCgaBOIJqOSnur.', '6Yuhi3kPGsYbZaC0jQnBBQ==', date('2023-07-27'), date('2023-07-27')),
        (2, 'AoJHavkGWBmssmfQvePZLQ==', '$2a$10$YI4Mh0gwbeKw12Wjo0/OPOgNFNg9h2GZRmtbzWcCgaBOIJqOSnur.', 'kL73OkEV2DwMAqollpd4Ww==', date('2023-07-27'), date('2023-07-27')),
        (3, 'DdMRuO/NaAGPKRMpV8alaw==', '$2a$10$YI4Mh0gwbeKw12Wjo0/OPOgNFNg9h2GZRmtbzWcCgaBOIJqOSnur.', 'yB7PhYcQJT2VX4H8JkA4Mg==', date('2023-07-27'), date('2023-07-27')),

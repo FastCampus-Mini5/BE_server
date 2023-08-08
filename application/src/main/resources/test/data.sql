@@ -20,6 +20,8 @@ values (1, 'kjoJiIPBz6f5YQXgKxpurQ==', '$2a$10$YI4Mh0gwbeKw12Wjo0/OPOgNFNg9h2GZR
         date('2023-03-17')),
        (10, 'YTdARKcFYOKmP9rexFG87g==', '$2a$10$YI4Mh0gwbeKw12Wjo0/OPOgNFNg9h2GZRmtbzWcCgaBOIJqOSnur.', 'q+ggvsgjm7waV879YZKJYg==', 'USER', date('2023-08-06'), '/image/default.png', date('2023-03-17'),
         date('2023-03-17')),
+       (80, '4e763MpUxEh8+91H69EnRw==', '$2a$10$zbxTMhR86pzcIA7Hb0.aludfUUzu9ModAlHzNaJZUkaIaXx0iRJHK', '4e763MpUxEh8+91H69EnRw==', 'ADMIN', date('2023-03-17'), '/image/default.png', date('2023-03-17'),
+        date('2023-03-17')),
        (100, 'vYmi29ELW93OC2X8IvZeEcYSH75XSiou3NU+1JYquqI=', '$2a$10$v8FySam6mvG18prce/3Vu.4.pNPIcbRYObbuSGfeC41yQ4PyHVy0u', '4e763MpUxEh8+91H69EnRw==', 'ADMIN', date('2023-03-17'), '/image/default.png', date('2023-03-17'),
         date('2023-03-17')),
        (200, 'wL0RQKcssRtFW0nUSRMJcJ4GCZ+Mu19OIh0T/d54fWs=', '$2a$10$WvBthERMv4stQe4aU0IZNOFKoBc08.TEP1LdY59X8Bk8el3LPWQ7a', 'bhyOYqovPimR7IBuX74dfA==', 'ADMIN', date('2023-03-17'), '/image/default.png', date('2023-03-17'),
