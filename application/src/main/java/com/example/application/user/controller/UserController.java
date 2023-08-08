@@ -5,6 +5,7 @@ import static com.example.core.config._security.jwt.JwtTokenProvider.TOKEN_PREFI
 import com.example.application.user.dto.UserRequest;
 import com.example.application.user.dto.UserResponse;
 import com.example.application.user.service.LoggingService;
+import com.example.application.user.service.MailService;
 import com.example.application.user.service.UserService;
 import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.model.user.User;
@@ -28,6 +29,7 @@ public class UserController {
 
   private final UserService userService;
   private final LoggingService loggingService;
+  private final MailService mailService;
 
   @PostMapping("/signup")
   public ResponseEntity<ApiResponse.Result<User>> signup(
@@ -117,10 +119,12 @@ public class UserController {
 
   @PostMapping("/findPassword")
   public ResponseEntity<ApiResponse.Result<?>> findPassword(
-      @RequestBody @Valid UserRequest.FindPasswordDTO findPasswordDTO, Errors errors) {
-    log.info("/api/user/findPassword " + findPasswordDTO);
+          @RequestBody @Valid UserRequest.ResetPasswordDTO resetPasswordDTO, Errors errors) {
+    log.info("/api/user/findPassword " + resetPasswordDTO);
 
-    userService.passwordReset(findPasswordDTO);
+    String tempPassword = userService.resetPassword(resetPasswordDTO);
+    mailService.send(resetPasswordDTO.getEmail(), tempPassword);
+
     return ResponseEntity.ok(ApiResponse.success());
   }
 }
