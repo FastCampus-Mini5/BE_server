@@ -1,0 +1,90 @@
+name: CI-CD
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  S3_BUCKET_NAME: kdtmini5-s3
+  ADMIN_RESOURCE_PATH: ./admin/src/main/resources/application-prod.yml
+  APPLICATION_RESOURCE_PATH: ./application/src/main/resources/application-prod.yml
+  CODE_DEPLOY_APPLICATION_NAME: kdtmini5_be_server
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: kdtmini5-code-deploy-group
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+
+      - name: Set admin yaml file
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ${{ env.ADMIN_RESOURCE_PATH }}
+        env:
+          secret-key: ${{ secrets.JWT_SECRET_KEY }}
+          aes-key: ${{ secrets.AES_SECRET_KEY }}
+          spring.mail.host: ${{ secrets.MAIL_SENDER_HOST }}
+          spring.mail.port: ${{ secrets.MAIL_SENDER_PORT }}
+          spring.mail.username: ${{ secrets.MAIL_SENDER_USERNAME }}
+          spring.mail.password: ${{ secrets.MAIL_SENDER_PASSWORD }}
+          spring.mail.properties.mail.smtp.ssl.true: ${{ secrets.MAIL_SENDER_HOST }}
+          spring.datasource.url: ${{ secrets.DB_URL }}
+          spring.datasource.driver-class-name: ${{ secrets.DB_DRIVER }}
+          spring.datasource.username: ${{ secrets.DB_USER }}
+          spring.datasource.password: ${{ secrets.DB_PASSWORD}}
+
+      - name: Set application yaml file
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ${{ env.APPLICATION_RESOURCE_PATH}}
+        env:
+          secret-key: ${{ secrets.JWT_SECRET_KEY }}
+          aes-key: ${{ secrets.AES_SECRET_KEY }}
+          spring.mail.host: ${{ secrets.MAIL_SENDER_HOST }}
+          spring.mail.port: ${{ secrets.MAIL_SENDER_PORT }}
+          spring.mail.username: ${{ secrets.MAIL_SENDER_USERNAME }}
+          spring.mail.password: ${{ secrets.MAIL_SENDER_PASSWORD }}
+          spring.mail.properties.mail.smtp.ssl.true: ${{ secrets.MAIL_SENDER_HOST }}
+          spring.datasource.url: ${{ secrets.DB_URL }}
+          spring.datasource.driver-class-name: ${{ secrets.DB_DRIVER }}
+          spring.datasource.username: ${{ secrets.DB_USER }}
+          spring.datasource.password: ${{ secrets.DB_PASSWORD}}
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+        shell: bash
+
+      - name: Build with Gradle
+        run: ./gradlew clean :application:buildNeeded :admin:buildNeeded --stacktrace --info -x test
+        shell: bash
+
+      - name: Make zip file
+        run: zip -r ./$GITHUB_SHA .
+        shell: bash
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
+
+      - name: Code Deploy
+        run: |
+          aws deploy create-deployment \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+          --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
+          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
