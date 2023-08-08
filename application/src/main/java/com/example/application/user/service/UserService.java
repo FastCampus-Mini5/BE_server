@@ -102,7 +102,7 @@ public class UserService {
 
     String encryptedPassword = passwordEncoder.encode(updateInfoDTO.getPassword());
 
-    user.setProfileImage(updateInfoDTO.getProfileImg());
+    user.setProfileImage(updateInfoDTO.getProfileImage());
     user.setPassword(encryptedPassword);
   }
 
