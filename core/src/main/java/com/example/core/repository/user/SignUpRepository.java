@@ -11,4 +11,6 @@ public interface SignUpRepository extends JpaRepository<SignUp, Long> {
   Optional<SignUp> findByEmail(String email);
 
   Boolean existsByEmail(String email);
+
+  SignUp getReferenceByEmail(String email);
 }
