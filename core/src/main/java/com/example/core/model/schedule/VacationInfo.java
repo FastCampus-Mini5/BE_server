@@ -34,4 +34,10 @@ public class VacationInfo {
     remainVacation = 0;
     usedVacation = 0;
   }
+
+  public void increaseVacation() {
+    if (remainVacation + usedVacation >= 15)
+      return;
+    remainVacation += 1;
+  }
 }
