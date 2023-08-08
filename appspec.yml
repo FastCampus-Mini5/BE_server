@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ubuntu/kdtmini5_be_server
+    destination: /home/ubuntu/BE_server
     overwrite: yes
 
 permissions:
