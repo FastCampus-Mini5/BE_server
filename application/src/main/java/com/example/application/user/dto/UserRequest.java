@@ -1,5 +1,8 @@
 package com.example.application.user.dto;
 
+import static com.example.core.errors.ErrorMessage.INVALID_EMAIL;
+import static com.example.core.errors.ErrorMessage.INVALID_PASSWORD;
+
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.model.user.SignUp;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -19,9 +22,7 @@ public class UserRequest {
   public static class SignUpDTO {
 
     @NotBlank
-    @Pattern(
-        regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
-        message = "유효하지 않은 이메일 형식입니다.")
+    @Email(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", message = INVALID_EMAIL)
     private String email;
 
     @NotBlank
@@ -31,7 +32,7 @@ public class UserRequest {
     @NotBlank
     @Pattern(
         regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$",
-        message = "비밀번호는 영어 대문자, 영어 소문자, 숫자, 특수문자를 모두 포함해야 하며, 최소 8글자 이상이어야 합니다.")
+        message = INVALID_PASSWORD)
     private String password;
 
     @NotNull
@@ -60,9 +61,7 @@ public class UserRequest {
   public static class SignInDTO {
 
     @NotBlank
-    @Pattern(
-        regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
-        message = "유효하지 않은 이메일 형식입니다.")
+    @Email(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", message = INVALID_EMAIL)
     private String email;
 
     @NotBlank private String password;
@@ -76,9 +75,7 @@ public class UserRequest {
   public static class CheckEmailDTO {
     @Setter
     @NotBlank
-    @Email(
-        regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
-        message = "유효하지 않은 이메일 주소입니다.")
+    @Email(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$", message = INVALID_EMAIL)
     private String email;
   }
 
@@ -88,12 +85,12 @@ public class UserRequest {
   @Builder
   @ToString
   public static class UpdateInfoDTO {
-    private String profileImg; // TODO : 이미지 파일 첨부
+    private String profileImage;
 
     @NotBlank
     @Pattern(
         regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$",
-        message = "비밀번호는 영어 대문자, 영어 소문자, 숫자, 특수문자를 모두 포함해야 하며, 최소 8글자 이상이어야 합니다.")
+        message = INVALID_PASSWORD)
     private String password;
   }
 
@@ -102,11 +99,9 @@ public class UserRequest {
   @AllArgsConstructor
   @Builder
   @ToString
-  public static class FindPasswordDTO {
+  public static class ResetPasswordDTO {
     @NotBlank
-    @Pattern(
-        regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
-        message = "유효하지 않은 이메일 형식입니다.")
+    @Email(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", message = INVALID_EMAIL)
     private String email;
   }
 }

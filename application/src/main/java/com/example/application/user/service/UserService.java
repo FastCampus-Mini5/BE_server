@@ -2,7 +2,6 @@ package com.example.application.user.service;
 
 import com.example.application.user.dto.UserRequest;
 import com.example.application.user.dto.UserResponse;
-import com.example.application.utils.TempPasswordMailSender;
 import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.config._security.jwt.JwtTokenProvider;
@@ -34,7 +33,6 @@ public class UserService {
   private final UserRepository userRepository;
   private final VacationInfoRepository vacationInfoRepository;
   private final Encryption encryption;
-  private final TempPasswordMailSender mailSender;
 
   @Transactional
   public void saveSignUpRequest(UserRequest.SignUpDTO signUpDTO) {
@@ -104,18 +102,16 @@ public class UserService {
 
     String encryptedPassword = passwordEncoder.encode(updateInfoDTO.getPassword());
 
-    user.setProfileImage(updateInfoDTO.getProfileImg());
+    user.setProfileImage(updateInfoDTO.getProfileImage());
     user.setPassword(encryptedPassword);
-
-    userRepository.save(user);
   }
 
   @Transactional
-  public void passwordReset(UserRequest.FindPasswordDTO findPasswordDTO) {
-    if (findPasswordDTO == null)
+  public String resetPassword(UserRequest.ResetPasswordDTO resetPasswordDTO) {
+    if (resetPasswordDTO == null)
       throw new EmptyDtoRequestException(ErrorMessage.EMPTY_DATA_TO_FIND_PASSWORD);
 
-    final String email = findPasswordDTO.getEmail();
+    final String email = resetPasswordDTO.getEmail();
     String encryptedEmail = encryption.encrypt(email);
 
     User user =
@@ -128,11 +124,7 @@ public class UserService {
     String encodedPassword = passwordEncoder.encode(tempPassword);
     user.setPassword(encodedPassword);
 
-    try {
-      mailSender.send(email, tempPassword);
-    } catch (Exception exception) {
-      throw new MailSendFailureException();
-    }
+    return tempPassword;
   }
 
   private String getRandomSixString() {
