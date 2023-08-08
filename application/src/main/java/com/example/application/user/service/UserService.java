@@ -13,6 +13,7 @@ import com.example.core.repository.schedule.VacationInfoRepository;
 import com.example.core.repository.user.SignUpRepository;
 import com.example.core.repository.user.UserRepository;
 import java.util.UUID;
+import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -74,18 +75,22 @@ public class UserService {
   @Transactional(readOnly = true)
   public UserResponse.UserInfoDTO getUserInfoByUserId(Long userId) {
 
-    User user = userRepository.getReferenceById(userId);
-    VacationInfo vacationInfo = vacationInfoRepository.getReferenceByUserId(userId);
+    try {
+      User user = userRepository.getReferenceById(userId);
+      VacationInfo vacationInfo = vacationInfoRepository.getReferenceByUserId(userId);
 
-    return UserResponse.UserInfoDTO.builder()
-        .email(user.getEmail())
-        .username(user.getUsername())
-        .profileImage(user.getProfileImage())
-        .hireDate(user.getHireDate())
-        .remainVacation(vacationInfo.getRemainVacation())
-        .usedVacation(vacationInfo.getUsedVacation())
-        .build()
-        .toDecryptedDTO(encryption);
+      return UserResponse.UserInfoDTO.builder()
+          .email(user.getEmail())
+          .username(user.getUsername())
+          .profileImage(user.getProfileImage())
+          .hireDate(user.getHireDate())
+          .remainVacation(vacationInfo.getRemainVacation())
+          .usedVacation(vacationInfo.getUsedVacation())
+          .build()
+          .toDecryptedDTO(encryption);
+    } catch (EntityNotFoundException e) {
+      throw new Exception400(ErrorMessage.USER_NOT_FOUND);
+    }
   }
 
   @Transactional
