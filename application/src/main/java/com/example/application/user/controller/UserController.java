@@ -37,7 +37,7 @@ public class UserController {
 
     userService.saveSignUpRequest(signUpDTO);
 
-    return ResponseEntity.ok(ApiResponse.success(null));
+    return ResponseEntity.ok(ApiResponse.success());
   }
 
   @PostMapping("/signin")
@@ -114,12 +114,12 @@ public class UserController {
 
     userService.updateUserInfoByUserId(userDetail.getUser().getId(), updateInfoDTO);
 
-    return ResponseEntity.ok(ApiResponse.success(null));
+    return ResponseEntity.ok(ApiResponse.success());
   }
 
   @PostMapping("/findPassword")
   public ResponseEntity<ApiResponse.Result<?>> findPassword(
-          @RequestBody @Valid UserRequest.ResetPasswordDTO resetPasswordDTO, Errors errors) {
+      @RequestBody @Valid UserRequest.ResetPasswordDTO resetPasswordDTO, Errors errors) {
     log.info("/api/user/findPassword " + resetPasswordDTO);
 
     String tempPassword = userService.resetPassword(resetPasswordDTO);
