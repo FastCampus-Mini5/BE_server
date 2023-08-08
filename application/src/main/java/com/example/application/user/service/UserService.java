@@ -32,7 +32,7 @@ public class UserService {
 
   @Transactional
   public void saveSignUpRequest(UserRequest.SignUpDTO signUpDTO) {
-    if (signUpRepository.existsByEmail(signUpDTO.getEmail()))
+    if (signUpRepository.existsByEmail(encryption.encrypt(signUpDTO.getEmail())))
       throw new Exception400(ErrorMessage.DUPLICATED_EMAIL);
 
     signUpRepository.save(signUpDTO.toEncryptedEntity(passwordEncoder, encryption));
