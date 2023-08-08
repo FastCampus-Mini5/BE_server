@@ -102,7 +102,7 @@ public class UserRequest {
   @AllArgsConstructor
   @Builder
   @ToString
-  public static class FindPasswordDTO {
+  public static class ResetPasswordDTO {
     @NotBlank
     @Pattern(
         regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
