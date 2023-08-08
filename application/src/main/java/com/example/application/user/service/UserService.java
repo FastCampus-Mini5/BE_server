@@ -102,7 +102,7 @@ public class UserService {
                   throw new Exception500(ErrorMessage.USER_NOT_FOUND);
                 });
 
-    String encryptedPassword = encryption.encrypt(updateInfoDTO.getPassword());
+    String encryptedPassword = passwordEncoder.encode(updateInfoDTO.getPassword());
 
     user.setProfileImage(updateInfoDTO.getProfileImg());
     user.setPassword(encryptedPassword);
