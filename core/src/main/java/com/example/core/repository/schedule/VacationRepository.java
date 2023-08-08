@@ -19,9 +19,6 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
     List<Vacation> findByYearAndUser(@Param("year") int year, @Param("user") User user);
 
     @Query("SELECT v FROM Vacation v WHERE YEAR(v.startDate) = :year")
-    Page<Vacation> findByStartDateYear(@Param("year") int year, Pageable pageable);
-
-    @Query("SELECT v FROM Vacation v WHERE YEAR(v.startDate) = :year")
     List<Vacation> findByStartDateYear(@Param("year") int year);
 
     Page<Vacation> findVacationsByStatus(Pageable pageable, Status status);

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.example.application.schedule.duty.dto.DutyRequest;
 import com.example.application.schedule.duty.dto.DutyResponse;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.exception.Exception400;
 import com.example.core.errors.exception.Exception403;
 import com.example.core.errors.exception.Exception404;
@@ -24,10 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class DutyServiceTest {
@@ -40,6 +37,9 @@ class DutyServiceTest {
 
     @InjectMocks
     private DutyService dutyService;
+
+    @Mock
+    private Encryption encryption;
 
     @DisplayName("유저 당직 신청 성공")
     @Test
@@ -115,10 +115,6 @@ class DutyServiceTest {
         Long userId = 1L;
         Long dutyId = 1L;
 
-        DutyRequest.CancelDTO cancelDTO = DutyRequest.CancelDTO.builder()
-                .id(dutyId)
-                .build();
-
         User user = createUser(userId, "user1");
         Duty duty = createDuty(dutyId, user, "2023-07-01 00:00:00");
 
@@ -126,7 +122,7 @@ class DutyServiceTest {
         when(dutyRepository.save(any(Duty.class))).thenReturn(duty);
 
         // when
-        DutyResponse.DutyDTO result = dutyService.cancelDuty(cancelDTO, userId);
+        DutyResponse.DutyDTO result = dutyService.cancelDuty(dutyId, userId);
 
         // then
         assertNotNull(result);
@@ -146,14 +142,10 @@ class DutyServiceTest {
         Long userId = 1L;
         Long invalidDutyId = 999L;
 
-        DutyRequest.CancelDTO cancelDTO = DutyRequest.CancelDTO.builder()
-                .id(invalidDutyId)
-                .build();
-
         when(dutyRepository.findById(invalidDutyId)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(Exception404.class, () -> dutyService.cancelDuty(cancelDTO, userId));
+        assertThrows(Exception404.class, () -> dutyService.cancelDuty(invalidDutyId, userId));
 
         verify(dutyRepository, times(1)).findById(invalidDutyId);
         verify(dutyRepository, never()).save(any(Duty.class));
@@ -166,10 +158,6 @@ class DutyServiceTest {
         Long userId = 1L;
         Long dutyId = 1L;
 
-        DutyRequest.CancelDTO cancelDTO = DutyRequest.CancelDTO.builder()
-                .id(dutyId)
-                .build();
-
         User user = createUser(userId, "user1");
         Duty approvedDuty = createDuty(dutyId, user, "2023-07-01 00:00:00");
         approvedDuty.updateStatus(Status.APPROVE);
@@ -177,7 +165,7 @@ class DutyServiceTest {
         when(dutyRepository.findById(dutyId)).thenReturn(Optional.of(approvedDuty));
 
         // when, then
-        assertThrows(Exception403.class, () -> dutyService.cancelDuty(cancelDTO, userId));
+        assertThrows(Exception403.class, () -> dutyService.cancelDuty(dutyId, userId));
 
         verify(dutyRepository, times(1)).findById(dutyId);
         verify(dutyRepository, never()).save(any(Duty.class));
@@ -235,31 +223,29 @@ class DutyServiceTest {
     void getAllDutiesByYear_Success() {
         // given
         int year = 2023;
-        Pageable pageable = PageRequest.of(0, 10);
 
         User user1 = createUser(1L, "user1");
         User user2 = createUser(2L, "user2");
 
         Duty duty1 = createDuty(1L, user1, "2023-07-01 00:00:00");
-        Duty duty2 = createDuty(2L, user2, "2023-08-01 00:00:00");
+        Duty duty2 = createDuty(2L, user2, "2023-07-10 00:00:00");
 
         List<Duty> duties = Arrays.asList(duty1, duty2);
-        Page<Duty> page = new PageImpl<>(duties, pageable, duties.size());
+        when(dutyRepository.findByDutyDateYear(year)).thenReturn(duties);
 
-        when(dutyRepository.findByDutyDateYear(eq(year), eq(pageable))).thenReturn(page);
+        when(encryption.decrypt(anyString())).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         // when
-        Page<DutyResponse.ListDTO> result = dutyService.getAllDutiesByYear(year, pageable);
+        List<DutyResponse.ListDTO> result = dutyService.getAllDutiesByYear(year);
 
         // then
         assertNotNull(result);
-        assertEquals(2, result.getTotalElements());
-        assertEquals(duty1.getUser().getUsername(), result.getContent().get(0).getUsername());
-        assertEquals(duty2.getUser().getUsername(), result.getContent().get(1).getUsername());
-        assertEquals(duty1.getDutyDate(), result.getContent().get(0).getDutyDate());
-        assertEquals(duty2.getDutyDate(), result.getContent().get(1).getDutyDate());
+        assertEquals(2, result.size());
+        assertEquals("user1", result.get(0).getUsername());
+        assertEquals("user2", result.get(1).getUsername());
 
-        verify(dutyRepository, times(1)).findByDutyDateYear(year, pageable);
+        verify(dutyRepository, times(1)).findByDutyDateYear(year);
+        verify(encryption, times(4)).decrypt(anyString());
     }
 
     private DutyRequest.AddDTO createDutyRequest(String dutyDate) {

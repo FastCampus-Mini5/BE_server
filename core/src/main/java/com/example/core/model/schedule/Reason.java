@@ -1,8 +1,5 @@
 package com.example.core.model.schedule;
 
 public enum Reason {
-  휴가,
-  반차,
-  연차,
-  병가
+연차, 휴가, 기타사항
 }

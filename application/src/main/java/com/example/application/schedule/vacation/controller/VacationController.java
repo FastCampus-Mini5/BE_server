@@ -7,9 +7,6 @@ import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -35,10 +32,10 @@ public class VacationController {
     }
 
     @DeleteMapping("/cancel")
-    public ResponseEntity<ApiResponse.Result<VacationResponse.VacationDTO>> cancel(@RequestBody @Valid VacationRequest.CancelDTO cancelDTO,
+    public ResponseEntity<ApiResponse.Result<VacationResponse.VacationDTO>> cancel(@RequestParam Long id,
                                                                                    @AuthenticationPrincipal PrincipalUserDetail userDetails) {
         Long userId = userDetails.getUser().getId();
-        VacationResponse.VacationDTO cancelledVacation = vacationService.cancelVacation(cancelDTO, userId);
+        VacationResponse.VacationDTO cancelledVacation = vacationService.cancelVacation(id, userId);
 
         return ResponseEntity.ok(ApiResponse.success(cancelledVacation));
     }
@@ -47,21 +44,11 @@ public class VacationController {
     public ResponseEntity<ApiResponse.Result<List<VacationResponse.MyVacationDTO>>> getMyVacationsByYear(
             @RequestParam("year") int year,
             @AuthenticationPrincipal PrincipalUserDetail userDetails) {
-        log.info("GET /api/user/myvacation " + year);
+        log.info("GET /api/user/vacation/myvacation " + year);
 
         Long userId = userDetails.getUser().getId();
         List<VacationResponse.MyVacationDTO> myVacationResponse = vacationService.getMyVacationsByYear(year, userId);
         return ResponseEntity.ok(ApiResponse.success(myVacationResponse));
-    }
-
-//    @GetMapping("/all/list")
-    public ResponseEntity<ApiResponse.Result<Page<VacationResponse.ListDTO>>> getAllVacationsByYear(
-            @PageableDefault(size = 10) Pageable pageable,
-            @RequestParam("year") int year) {
-        log.info("GET /api/user/vacation/all/list " + year);
-
-        Page<VacationResponse.ListDTO> listResponse = vacationService.getAllVacationsByYear(year, pageable);
-        return ResponseEntity.ok(ApiResponse.success(listResponse));
     }
 
     @GetMapping("/all/list")

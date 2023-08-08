@@ -2,7 +2,7 @@ package com.example.application.schedule.vacation.service;
 
 import com.example.application.schedule.vacation.dto.VacationRequest;
 import com.example.application.schedule.vacation.dto.VacationResponse;
-import com.example.application.schedule.vacation.service.VacationService;
+import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.exception.Exception400;
 import com.example.core.errors.exception.Exception403;
 import com.example.core.errors.exception.Exception404;
@@ -20,10 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -49,6 +45,9 @@ class VacationServiceTest {
 
     @InjectMocks
     private VacationService vacationService;
+
+    @Mock
+    private Encryption encryption;
 
     @DisplayName("유저 연차 신청 성공")
     @Test
@@ -131,10 +130,6 @@ class VacationServiceTest {
         Long userId = 1L;
         Long vacationId = 1L;
 
-        VacationRequest.CancelDTO cancelDTO = VacationRequest.CancelDTO.builder()
-                .id(vacationId)
-                .build();
-
         User user = createUser(userId, "user1");
         Vacation vacation = createVacation(vacationId, user, "2023-07-01 00:00:00", "2023-07-03 00:00:00", Status.PENDING);
 
@@ -142,7 +137,7 @@ class VacationServiceTest {
         when(vacationRepository.save(any(Vacation.class))).thenReturn(vacation);
 
         // when
-        VacationResponse.VacationDTO result = vacationService.cancelVacation(cancelDTO, userId);
+        VacationResponse.VacationDTO result = vacationService.cancelVacation(vacationId, userId);
 
         // then
         assertNotNull(result);
@@ -163,12 +158,11 @@ class VacationServiceTest {
     void cancelVacation_Fail_InvalidVacationId() {
         // given
         Long invalidVacationId = 999L;
-        VacationRequest.CancelDTO cancelDTO = new VacationRequest.CancelDTO(invalidVacationId);
 
         when(vacationRepository.findById(invalidVacationId)).thenReturn(Optional.empty());
 
         // when, then
-        assertThrows(Exception404.class, () -> vacationService.cancelVacation(cancelDTO, 1L));
+        assertThrows(Exception404.class, () -> vacationService.cancelVacation(invalidVacationId, 1L));
 
         verify(vacationRepository, times(1)).findById(invalidVacationId);
     }
@@ -179,14 +173,13 @@ class VacationServiceTest {
         // given
         Long userId = 1L;
         Long vacationId = 1L;
-        VacationRequest.CancelDTO cancelDTO = new VacationRequest.CancelDTO(vacationId);
 
         User user = createUser(userId, "user1");
         Vacation vacation = createVacation(vacationId, user, "2023-07-01 00:00:00", "2023-07-03 00:00:00", Status.APPROVE);
         when(vacationRepository.findById(vacationId)).thenReturn(Optional.of(vacation));
 
         // when, then
-        assertThrows(Exception403.class, () -> vacationService.cancelVacation(cancelDTO, userId));
+        assertThrows(Exception403.class, () -> vacationService.cancelVacation(vacationId, userId));
 
         verify(vacationRepository, times(1)).findById(vacationId);
     }
@@ -238,45 +231,41 @@ class VacationServiceTest {
         verify(vacationRepository, never()).findByYearAndUser(anyInt(), any(User.class));
     }
 
-    @Test
     @DisplayName("전체 유저 연차 리스트(년도별 조회) 성공")
+    @Test
     void getAllVacationsByYear_Success() {
         // given
         int year = 2023;
-        Pageable pageable = PageRequest.of(0, 10);
 
         User user1 = createUser(1L, "user1");
         User user2 = createUser(2L, "user2");
 
-        Vacation vacation1 = createVacation(1L, user1, "2023-01-01 00:00:00", "2023-01-05 00:00:00");
-        Vacation vacation2 = createVacation(2L, user2, "2023-02-01 00:00:00", "2023-02-05 00:00:00");
+        Vacation vacation1 = createVacation(1L, user1, "2023-07-01 00:00:00", "2023-07-03 00:00:00");
+        Vacation vacation2 = createVacation(2L, user2, "2023-07-10 00:00:00", "2023-07-12 00:00:00");
 
         List<Vacation> vacations = Arrays.asList(vacation1, vacation2);
-        Page<Vacation> page = new PageImpl<>(vacations, pageable, vacations.size());
+        when(vacationRepository.findByStartDateYear(year)).thenReturn(vacations);
 
-        when(vacationRepository.findByStartDateYear(eq(year), eq(pageable))).thenReturn(page);
+        when(encryption.decrypt(anyString())).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         // when
-        Page<VacationResponse.ListDTO> result = vacationService.getAllVacationsByYear(year, pageable);
+        List<VacationResponse.ListDTO> result = vacationService.getAllVacationsByYear(year);
 
         // then
         assertNotNull(result);
-        assertEquals(2, result.getTotalElements());
-        assertEquals(vacation1.getUser().getUsername(), result.getContent().get(0).getUsername());
-        assertEquals(vacation2.getUser().getUsername(), result.getContent().get(1).getUsername());
-        assertEquals(vacation1.getStartDate(), result.getContent().get(0).getStartDate());
-        assertEquals(vacation2.getStartDate(), result.getContent().get(1).getStartDate());
-        assertEquals(vacation1.getEndDate(), result.getContent().get(0).getEndDate());
-        assertEquals(vacation2.getEndDate(), result.getContent().get(1).getEndDate());
+        assertEquals(2, result.size());
+        assertEquals("user1", result.get(0).getUsername());
+        assertEquals("user2", result.get(1).getUsername());
 
-        verify(vacationRepository, times(1)).findByStartDateYear(year, pageable);
+        verify(vacationRepository, times(1)).findByStartDateYear(year);
+        verify(encryption, times(4)).decrypt(anyString());
     }
 
     private Vacation createVacation(Long id, User user, String startDate, String endDate, Status status) {
         return Vacation.builder()
                 .id(id)
                 .user(user)
-                .reason(Reason.병가)
+                .reason(Reason.연차)
                 .status(status)
                 .startDate(Timestamp.valueOf(startDate))
                 .endDate(Timestamp.valueOf(endDate))
@@ -307,7 +296,7 @@ class VacationServiceTest {
         return Vacation.builder()
                 .id(id)
                 .user(user)
-                .reason(Reason.병가)
+                .reason(Reason.기타사항)
                 .status(Status.PENDING)
                 .startDate(Timestamp.valueOf(startDate))
                 .endDate(Timestamp.valueOf(endDate))
