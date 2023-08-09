@@ -2,7 +2,6 @@ package com.example.application.user.service;
 
 import com.example.application.user.dto.UserRequest;
 import com.example.application.user.dto.UserResponse;
-import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.config._security.jwt.JwtTokenProvider;
 import com.example.core.errors.ErrorMessage;
