@@ -46,6 +46,6 @@ public class User {
 
   @PrePersist
   protected void onCreate() {
-    role = "user";
+    role = "USER";
   }
 }
