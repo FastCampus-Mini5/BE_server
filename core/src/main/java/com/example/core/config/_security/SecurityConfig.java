@@ -77,6 +77,7 @@ public class SecurityConfig {
                     .antMatchers(
                         "/api/admin/user/signIn",
                         "/api/user/signin",
+                        "/api/user/signup",
                         "/api/user/findPassword",
                         "/api/user/emailCheck")
                     .permitAll()
