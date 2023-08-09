@@ -140,7 +140,6 @@ class VacationServiceTest {
         Vacation vacation = createVacation(vacationId, user, "2023-07-01 00:00:00", "2023-07-03 00:00:00", Status.PENDING);
 
         when(vacationRepository.findById(vacationId)).thenReturn(Optional.of(vacation));
-        when(vacationRepository.save(any(Vacation.class))).thenReturn(vacation);
 
         // when
         VacationResponse.VacationDTO result = vacationService.cancelVacation(vacationId, userId);
@@ -150,13 +149,13 @@ class VacationServiceTest {
         assertEquals(vacation.getId(), result.getId());
         assertEquals(user.getEmail(), result.getUserEmail());
         assertEquals(vacation.getReason(), result.getReason());
-        assertEquals(Status.CANCELLED, result.getStatus());
         assertEquals(vacation.getStartDate(), result.getStartDate());
         assertEquals(vacation.getEndDate(), result.getEndDate());
         assertEquals(vacation.getApprovalDate(), result.getApprovalDate());
 
         verify(vacationRepository, times(1)).findById(vacationId);
-        verify(vacationRepository, times(1)).save(any(Vacation.class));
+        verify(vacationRepository, times(1)).deleteById(vacationId);
+        verify(vacationRepository, never()).save(any(Vacation.class));
     }
 
     @DisplayName("유저 연차 취소 실패 - 존재하지 않는 연차 ID")

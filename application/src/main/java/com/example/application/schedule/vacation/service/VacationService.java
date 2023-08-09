@@ -83,9 +83,9 @@ public class VacationService {
             throw new Exception403(ErrorMessage.VACATION_CANNOT_BE_CANCELLED);
         }
 
-        vacation.updateStatus(Status.CANCELLED);
-        Vacation savedVacation = vacationRepository.save(vacation);
-        return VacationResponse.VacationDTO.from(savedVacation);
+        VacationResponse.VacationDTO cancelledVacation = VacationResponse.VacationDTO.from(vacation);
+        vacationRepository.deleteById(id);
+        return cancelledVacation;
     }
 
 
