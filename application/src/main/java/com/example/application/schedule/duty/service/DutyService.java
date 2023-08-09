@@ -69,9 +69,9 @@ public class DutyService {
             throw new Exception403(ErrorMessage.DUTY_CANNOT_BE_CANCELLED);
         }
 
-        duty.updateStatus(Status.CANCELLED);
-        Duty savedDuty = dutyRepository.save(duty);
-        return DutyResponse.DutyDTO.from(savedDuty);
+        DutyResponse.DutyDTO cancelledDuty = DutyResponse.DutyDTO.from(duty);
+        dutyRepository.deleteById(id);
+        return cancelledDuty;
     }
 
     @Transactional(readOnly = true)

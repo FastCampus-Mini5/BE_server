@@ -127,7 +127,6 @@ class DutyServiceTest {
         Duty duty = createDuty(dutyId, user, "2023-07-01 00:00:00");
 
         when(dutyRepository.findById(dutyId)).thenReturn(Optional.of(duty));
-        when(dutyRepository.save(any(Duty.class))).thenReturn(duty);
 
         // when
         DutyResponse.DutyDTO result = dutyService.cancelDuty(dutyId, userId);
@@ -137,10 +136,10 @@ class DutyServiceTest {
         assertEquals(duty.getId(), result.getId());
         assertEquals(user.getEmail(), result.getUserEmail());
         assertEquals(duty.getDutyDate(), result.getDutyDate());
-        assertEquals(Status.CANCELLED, result.getStatus());
 
         verify(dutyRepository, times(1)).findById(dutyId);
-        verify(dutyRepository, times(1)).save(any(Duty.class));
+        verify(dutyRepository, times(1)).deleteById(dutyId);
+        verify(dutyRepository, never()).save(any(Duty.class));
     }
 
     @DisplayName("유저 당직 취소 실패 - 유효하지 않은 당직 ID")
