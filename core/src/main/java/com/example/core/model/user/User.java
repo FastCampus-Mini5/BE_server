@@ -32,6 +32,7 @@ public class User {
   @Column(nullable = false)
   private String role;
 
+  @Lob
   @Column(nullable = false)
   @Setter
   private String profileImage;
