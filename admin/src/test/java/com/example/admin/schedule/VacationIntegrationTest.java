@@ -72,7 +72,7 @@ public class VacationIntegrationTest {
     @Test
     void testVacationApproveFailWithDTO() {
         // Given
-        Long id = 7L;
+        Long id = 11L;
         String status = "APPROVE";
 
         VacationRequest.StatusDTO statusDTO =
@@ -97,7 +97,7 @@ public class VacationIntegrationTest {
         Assertions.assertNotNull(vacationPage);
         Assertions.assertFalse(vacationPage.isEmpty());
         Assertions.assertEquals(4, vacationPage.getSize());
-        Assertions.assertEquals(6, vacationPage.getTotalElements());
+        Assertions.assertEquals(5, vacationPage.getTotalElements());
     }
 
     @DisplayName("연차 목록 조회 실패 - 유효하지 않은 상태")
