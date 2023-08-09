@@ -3,7 +3,6 @@ package com.example.core.config._security.encryption;
 import com.example.core.errors.exception.DecryptException;
 import com.example.core.errors.exception.EncryptException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +17,8 @@ public class AESEncryption implements Encryption {
 
     private static final String AES_ALGORITHM = "AES";
 
-    @Value("${aes-key}")
     private static String AES_KEY;
+
     private final Environment environment;
 
     public String encrypt(String data) throws EncryptException {
