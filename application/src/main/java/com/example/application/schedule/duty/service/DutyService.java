@@ -12,10 +12,17 @@ import com.example.core.model.schedule.Status;
 import com.example.core.model.user.User;
 import com.example.core.repository.schedule.DutyRepository;
 import com.example.core.repository.user.UserRepository;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,5 +91,31 @@ public class DutyService {
                 .map(DutyResponse.ListDTO::from)
                 .map(dto->dto.decrypt(encryption))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] getAllDutiesExcelByYear(int year) throws IOException {
+        List<DutyResponse.ListDTO> allDutiesInYear = getAllDutiesByYear(year);
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Duties");
+
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("유저네임");
+        headerRow.createCell(1).setCellValue("상태");
+        headerRow.createCell(2).setCellValue("당직일");
+
+        for (int i = 0; i < allDutiesInYear.size(); i++) {
+            DutyResponse.ListDTO duty = allDutiesInYear.get(i);
+            Row row = sheet.createRow(i + 1);
+            row.createCell(0).setCellValue(duty.getUsername());
+            row.createCell(1).setCellValue("당직");
+            row.createCell(2).setCellValue(duty.getDutyDate().toString());
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        byte[] bytes = outputStream.toByteArray();
+        return bytes;
     }
 }

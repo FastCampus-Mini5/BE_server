@@ -14,6 +14,10 @@ import com.example.core.model.user.User;
 import com.example.core.repository.schedule.VacationInfoRepository;
 import com.example.core.repository.schedule.VacationRepository;
 import com.example.core.repository.user.UserRepository;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +25,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -259,6 +265,55 @@ class VacationServiceTest {
 
         verify(vacationRepository, times(1)).findByStartDateYear(year);
         verify(encryption, times(4)).decrypt(anyString());
+    }
+
+    @DisplayName("전체 유저 연차 리스트(년도별 조회) 엑셀 파일 생성 성공")
+    @Test
+    void generateAllVacationsExcel_Success() throws IOException {
+        // given
+        int year = 2023;
+        User user1 = createUser(1L, "user1");
+        User user2 = createUser(2L, "user2");
+
+        Vacation vacation1 = createVacation(1L, user1, "2023-07-02 00:00:00", "2023-07-09 00:00:00");
+        Vacation vacation2 = createVacation(2L, user2, "2023-07-15 00:00:00", "2023-07-20 00:00:00");
+
+        List<VacationResponse.ListDTO> allVacationsInYear = Arrays.asList(
+                VacationResponse.ListDTO.from(vacation1),
+                VacationResponse.ListDTO.from(vacation2));
+
+        // when
+        byte[] result = vacationService.generateAllVacationsExcel(allVacationsInYear);
+
+        // then
+        assertNotNull(result);
+
+        // Read the Excel file from the byte array and validate its content
+        try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(result))) {
+            Sheet sheet = workbook.getSheetAt(0);
+            assertEquals("Vacations", sheet.getSheetName());
+
+            // Validate header row
+            Row headerRow = sheet.getRow(0);
+            assertEquals("유저네임", headerRow.getCell(0).getStringCellValue());
+            assertEquals("상태", headerRow.getCell(1).getStringCellValue());
+            assertEquals("연차 시작일", headerRow.getCell(2).getStringCellValue());
+            assertEquals("연차 종료일", headerRow.getCell(3).getStringCellValue());
+
+            // Validate the first row
+            Row firstRow = sheet.getRow(1);
+            assertEquals("user1", firstRow.getCell(0).getStringCellValue());
+            assertEquals("연차", firstRow.getCell(1).getStringCellValue());
+            assertEquals("2023-07-02 00:00:00.0", firstRow.getCell(2).getStringCellValue());
+            assertEquals("2023-07-09 00:00:00.0", firstRow.getCell(3).getStringCellValue());
+
+            // Validate the second row
+            Row secondRow = sheet.getRow(2);
+            assertEquals("user2", secondRow.getCell(0).getStringCellValue());
+            assertEquals("연차", secondRow.getCell(1).getStringCellValue());
+            assertEquals("2023-07-15 00:00:00.0", secondRow.getCell(2).getStringCellValue());
+            assertEquals("2023-07-20 00:00:00.0", secondRow.getCell(3).getStringCellValue());
+        }
     }
 
     private Vacation createVacation(Long id, User user, String startDate, String endDate, Status status) {

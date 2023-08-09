@@ -14,11 +14,19 @@ import com.example.core.model.schedule.Status;
 import com.example.core.model.user.User;
 import com.example.core.repository.schedule.DutyRepository;
 import com.example.core.repository.user.UserRepository;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -243,6 +251,55 @@ class DutyServiceTest {
         assertEquals(2, result.size());
         assertEquals("user1", result.get(0).getUsername());
         assertEquals("user2", result.get(1).getUsername());
+
+        verify(dutyRepository, times(1)).findByDutyDateYear(year);
+        verify(encryption, times(4)).decrypt(anyString());
+    }
+
+    @DisplayName("전체 유저 당직 리스트(년도별 조회) 엑셀 파일 생성 성공")
+    @Test
+    void getAllDutiesExcelByYear_Success() throws IOException {
+        // given
+        int year = 2023;
+
+        User user1 = createUser(1L, "user1");
+        User user2 = createUser(2L, "user2");
+
+        Duty duty1 = createDuty(1L, user1, "2023-07-01 00:00:00");
+        Duty duty2 = createDuty(2L, user2, "2023-07-10 00:00:00");
+
+        List<Duty> duties = Arrays.asList(duty1, duty2);
+        when(dutyRepository.findByDutyDateYear(year)).thenReturn(duties);
+
+        when(encryption.decrypt(anyString())).thenAnswer(invocation -> invocation.getArguments()[0]);
+
+        // when
+        byte[] result = dutyService.getAllDutiesExcelByYear(year);
+
+        // then
+        assertNotNull(result);
+
+        // Read the created Excel file
+        Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(result));
+        Sheet sheet = workbook.getSheetAt(0);
+
+        assertEquals("Duties", sheet.getSheetName());
+        assertEquals(3, sheet.getPhysicalNumberOfRows());
+
+        Row headerRow = sheet.getRow(0);
+        assertEquals("유저네임", headerRow.getCell(0).getStringCellValue());
+        assertEquals("상태", headerRow.getCell(1).getStringCellValue());
+        assertEquals("당직일", headerRow.getCell(2).getStringCellValue());
+
+        Row firstRow = sheet.getRow(1);
+        assertEquals("user1", firstRow.getCell(0).getStringCellValue());
+        assertEquals("당직", firstRow.getCell(1).getStringCellValue());
+        assertEquals("2023-07-01 00:00:00.0", firstRow.getCell(2).getStringCellValue());
+
+        Row secondRow = sheet.getRow(2);
+        assertEquals("user2", secondRow.getCell(0).getStringCellValue());
+        assertEquals("당직", secondRow.getCell(1).getStringCellValue());
+        assertEquals("2023-07-10 00:00:00.0", secondRow.getCell(2).getStringCellValue());
 
         verify(dutyRepository, times(1)).findByDutyDateYear(year);
         verify(encryption, times(4)).decrypt(anyString());
