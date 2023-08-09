@@ -72,7 +72,7 @@ public class DutyIntegrationTest {
     @Test
     void testDutyApproveFailWithDTO() {
         // Given
-        Long id = 7L;
+        Long id = 11L;
         String status = "APPROVE";
 
         DutyRequest.StatusDTO statusDTO =
@@ -97,7 +97,7 @@ public class DutyIntegrationTest {
         Assertions.assertNotNull(dutyPage);
         Assertions.assertFalse(dutyPage.isEmpty());
         Assertions.assertEquals(4, dutyPage.getSize());
-        Assertions.assertEquals(6, dutyPage.getTotalElements());
+        Assertions.assertEquals(5, dutyPage.getTotalElements());
     }
 
     @DisplayName("당직 목록 조회 실패 - 유효하지 않은 상태")
