@@ -2,7 +2,6 @@ package com.example.application.user.service;
 
 import com.example.application.user.dto.UserRequest;
 import com.example.application.user.dto.UserResponse;
-import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.config._security.jwt.JwtTokenProvider;
 import com.example.core.errors.ErrorMessage;
@@ -13,11 +12,9 @@ import com.example.core.repository.schedule.VacationInfoRepository;
 import com.example.core.repository.user.SignUpRepository;
 import com.example.core.repository.user.UserRepository;
 import java.util.UUID;
+import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
   private final PasswordEncoder passwordEncoder;
-  private final AuthenticationManager authenticationManager;
   private final SignUpRepository signUpRepository;
   private final UserRepository userRepository;
   private final VacationInfoRepository vacationInfoRepository;
@@ -36,7 +32,7 @@ public class UserService {
 
   @Transactional
   public void saveSignUpRequest(UserRequest.SignUpDTO signUpDTO) {
-    if (signUpRepository.existsByEmail(signUpDTO.getEmail()))
+    if (signUpRepository.existsByEmail(encryption.encrypt(signUpDTO.getEmail())))
       throw new Exception400(ErrorMessage.DUPLICATED_EMAIL);
 
     signUpRepository.save(signUpDTO.toEncryptedEntity(passwordEncoder, encryption));
@@ -46,15 +42,17 @@ public class UserService {
   public String signIn(UserRequest.SignInDTO signInDTO) {
     if (signInDTO == null) throw new Exception500(ErrorMessage.EMPTY_DATA_TO_SIGNIN);
 
-    UsernamePasswordAuthenticationToken token =
-        new UsernamePasswordAuthenticationToken(
-            encryption.encrypt(signInDTO.getEmail()), signInDTO.getPassword());
+    User user =
+        userRepository
+            .findByEmail(encryption.encrypt(signInDTO.getEmail()))
+            .orElseThrow(
+                () -> {
+                  throw new Exception401(ErrorMessage.USER_NOT_FOUND);
+                });
 
-    Authentication authentication = authenticationManager.authenticate(token);
-
-    PrincipalUserDetail userDetail = (PrincipalUserDetail) authentication.getPrincipal();
-
-    final User user = userDetail.getUser();
+    if (!passwordEncoder.matches(signInDTO.getPassword(), user.getPassword())) {
+      throw new Exception401(ErrorMessage.PASSWORD_NOT_MATCH);
+    }
 
     return JwtTokenProvider.create(user);
   }
@@ -76,18 +74,22 @@ public class UserService {
   @Transactional(readOnly = true)
   public UserResponse.UserInfoDTO getUserInfoByUserId(Long userId) {
 
-    User user = userRepository.getReferenceById(userId);
-    VacationInfo vacationInfo = vacationInfoRepository.getReferenceByUserId(userId);
+    try {
+      User user = userRepository.getReferenceById(userId);
+      VacationInfo vacationInfo = vacationInfoRepository.getReferenceByUserId(userId);
 
-    return UserResponse.UserInfoDTO.builder()
-        .email(user.getEmail())
-        .username(user.getUsername())
-        .profileImage(user.getProfileImage())
-        .hireDate(user.getHireDate())
-        .remainVacation(vacationInfo.getRemainVacation())
-        .usedVacation(vacationInfo.getUsedVacation())
-        .build()
-        .toDecryptedDTO(encryption);
+      return UserResponse.UserInfoDTO.builder()
+          .email(user.getEmail())
+          .username(user.getUsername())
+          .profileImage(user.getProfileImage())
+          .hireDate(user.getHireDate())
+          .remainVacation(vacationInfo.getRemainVacation())
+          .usedVacation(vacationInfo.getUsedVacation())
+          .build()
+          .toDecryptedDTO(encryption);
+    } catch (EntityNotFoundException e) {
+      throw new Exception400(ErrorMessage.USER_NOT_FOUND);
+    }
   }
 
   @Transactional

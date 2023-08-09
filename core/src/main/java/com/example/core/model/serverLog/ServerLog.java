@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -13,6 +14,7 @@ import org.springframework.data.annotation.CreatedDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
 public class ServerLog {
 
   @Id

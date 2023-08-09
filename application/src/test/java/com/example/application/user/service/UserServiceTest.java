@@ -1,27 +1,29 @@
 package com.example.application.user.service;
 
+import static com.example.core.errors.ErrorMessage.PASSWORD_NOT_MATCH;
+import static com.example.core.errors.ErrorMessage.USER_NOT_FOUND;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.when;
 
 import com.example.application.user.dto.UserRequest;
 import com.example.application.user.dto.UserResponse;
-import com.example.application.utils.TempPasswordMailSender;
 import com.example.core.config._security.encryption.Encryption;
 import com.example.core.errors.ErrorMessage;
-import com.example.core.errors.exception.EmptyDtoRequestException;
-import com.example.core.errors.exception.Exception500;
-import com.example.core.errors.exception.UserNotFoundException;
+import com.example.core.errors.exception.*;
+import com.example.core.model.schedule.VacationInfo;
 import com.example.core.model.user.SignUp;
 import com.example.core.model.user.User;
+import com.example.core.repository.schedule.VacationInfoRepository;
 import com.example.core.repository.user.SignUpRepository;
 import com.example.core.repository.user.UserRepository;
 import java.sql.Timestamp;
 import java.util.Optional;
-import javax.persistence.EntityNotFoundException;
+import javax.persistence.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,10 +37,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class UserServiceTest {
   @InjectMocks private UserService sut;
   @Mock private UserRepository userRepository;
+  @Mock private VacationInfoRepository vacationInfoRepository;
   @Mock private SignUpRepository signUpRepository;
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private Encryption encryption;
-  @Mock private TempPasswordMailSender mailSender;
 
   UserServiceTest() {}
 
@@ -65,50 +67,49 @@ class UserServiceTest {
     assertEquals(encryption.encrypt(signUpDTO.getEmail()), capturedSignUp.getEmail());
   }
 
-  @DisplayName("[FAIL][saveSignUpRequest] 회원 가입 요청이 전달되지 않은 경우 예외 발생")
+  @DisplayName("[FAIL][signIn] 로그인 이메일 불일치 - 실패")
   @Test
-  void givenNothing_whenSaveSignUpRequest_thenThrowsException() {
+  void givenWrongEmail_whenSignIn_thenSignInFailed() {
     // Given
+    String wrongEmail = "wrongEmail@test.com";
+    String encryptedEmail = "encrypted";
+    String password = "password!231!";
+    UserRequest.SignInDTO signInDTO =
+        UserRequest.SignInDTO.builder().email(wrongEmail).password(password).build();
 
     // When
-    Throwable t = catchThrowable(() -> sut.saveSignUpRequest(null));
+    when(encryption.encrypt(signInDTO.getEmail())).thenReturn(encryptedEmail);
+    when(userRepository.findByEmail(encryptedEmail)).thenThrow(new Exception401(USER_NOT_FOUND));
+    Throwable t = catchThrowable(() -> sut.signIn(signInDTO));
 
     // Then
-    then(signUpRepository).shouldHaveNoInteractions();
-    assertThat(t)
-        .isInstanceOf(Exception500.class)
-        .hasMessageContaining(ErrorMessage.EMPTY_DATA_TO_SIGNUP);
+    assertThat(t).isInstanceOf(Exception401.class).hasMessageContaining(USER_NOT_FOUND);
   }
 
-  // TODO : signIn 메서드 리팩토링 후 작성 시작
-  @DisplayName("[SUCCESS][signIn] 로그인 - 성공")
+  @DisplayName("[FAIL][signIn] 로그인 비밀번호 불일치 - 실패")
   @Test
-  void givenSignInDTO_whenSignIn_thenReturnsJWT() {
+  void givenWrongPassword_whenSignIn_thenSignInFailed() {
     // Given
-    String email = "test@email.com";
-    String rawPassword = "rawPassword!@";
-    String encodedPassword = "encodedPassword!@";
+    String wrongEmail = "wrongEmail@test.com";
+    String encryptedEmail = "encrypted";
+    String password = "password!231!";
+    String encodedPassword = "encoded";
+
     UserRequest.SignInDTO signInDTO =
-        UserRequest.SignInDTO.builder().email(email).password(rawPassword).build();
-
-    User user = User.builder().email(email).password(encodedPassword).build();
-
+        UserRequest.SignInDTO.builder().email(wrongEmail).password(password).build();
+    User user = User.builder().email(encryptedEmail).password(encodedPassword).build();
     Optional<User> userOptional = Optional.of(user);
 
-    given(userRepository.findByEmail(email)).willReturn(userOptional);
-    given(passwordEncoder.matches(rawPassword, encodedPassword)).willReturn(Boolean.TRUE);
-
     // When
-    //    String actualJWT = sut.signIn(signInDTO);
+    when(encryption.encrypt(signInDTO.getEmail())).thenReturn(encryptedEmail);
+    when(userRepository.findByEmail(encryptedEmail)).thenReturn(userOptional);
+    when(passwordEncoder.matches(signInDTO.getPassword(), user.getPassword()))
+        .thenReturn(Boolean.FALSE);
+    Throwable t = catchThrowable(() -> sut.signIn(signInDTO));
 
     // Then
-    //    assertThat(actualJWT).startsWith("Bearer ");
+    assertThat(t).isInstanceOf(Exception401.class).hasMessageContaining(PASSWORD_NOT_MATCH);
   }
-
-  // TODO : signIn 메서드 리팩토링 후 작성 시작
-  @DisplayName("[FAIL][signIn] 잘못된 로그인 시도 - 실패")
-  @Test
-  void givenWrongSignInInfo_whenSignIn_thenReturnsJWT() {}
 
   @DisplayName("[SUCCESS][checkEmail] 이메일 중복체크 - 사용가능한 이메일")
   @Test
@@ -177,13 +178,12 @@ class UserServiceTest {
   void givenUserId_whenGetUserInfoByUserId_thenReturnsUserInfoDTO() {
     // Given
     Long userId = 1L;
+    String rawEmail = "test@test.com";
+    String rawUsername = "testUsername";
+    String encodedUsername = "encodedTestuser";
+    String encodedEmail = "encodedEmail";
+    String profileImage = "base64Image";
     Timestamp hireDate = Timestamp.valueOf("2023-06-01 00:00:00");
-
-    String rawUsername = "testuser";
-    String rawEmail = "testuser@test.com";
-    String encodedUsername = "encoded_testuser";
-    String encodedEmail = "encoded_testuser@test.com";
-
     given(encryption.decrypt(encodedUsername)).willReturn(rawUsername);
     given(encryption.decrypt(encodedEmail)).willReturn(rawEmail);
 
@@ -192,21 +192,25 @@ class UserServiceTest {
             .id(userId)
             .username(encodedUsername)
             .email(encodedEmail)
-            .profileImage("default.img")
+            .profileImage(profileImage)
             .hireDate(hireDate)
             .build();
 
-    given(userRepository.getReferenceById(userId)).willReturn(user);
+    VacationInfo vacationInfo =
+        VacationInfo.builder().user(user).remainVacation(3).usedVacation(12).build();
 
-    // When & Then
+    // When
+    when(userRepository.getReferenceById(userId)).thenReturn(user);
+    when(vacationInfoRepository.getReferenceByUserId(userId)).thenReturn(vacationInfo);
     UserResponse.UserInfoDTO actual = sut.getUserInfoByUserId(userId);
 
     // Then
     then(userRepository).should().getReferenceById(userId);
+    then(vacationInfoRepository).should().getReferenceByUserId(userId);
     assertThat(actual)
         .hasFieldOrPropertyWithValue("username", rawUsername)
         .hasFieldOrPropertyWithValue("email", rawEmail)
-        .hasFieldOrPropertyWithValue("profileImage", "default.img")
+        .hasFieldOrPropertyWithValue("profileImage", profileImage)
         .hasFieldOrPropertyWithValue("hireDate", hireDate);
   }
 
@@ -214,24 +218,15 @@ class UserServiceTest {
   @Test
   void givenInvalidUserId_whenGetUserInfoByUserId_thenThrowsError() {
     // Given
-    Long userId = 1L;
-    Timestamp hireDate = Timestamp.valueOf("2023-06-01 00:00:00");
-    User user =
-        User.builder()
-            .id(userId)
-            .username("testuser")
-            .email("testuser@test.com")
-            .profileImage("default.img")
-            .hireDate(hireDate)
-            .build();
-    given(userRepository.getReferenceById(userId)).willThrow(EntityNotFoundException.class);
+    Long userId = -1L;
 
     // When & Then
+    when(userRepository.getReferenceById(userId)).thenThrow(new EntityNotFoundException());
     Throwable t = Assertions.catchThrowable(() -> sut.getUserInfoByUserId(userId));
 
     // Then
     then(userRepository).should().getReferenceById(userId);
-    assertThat(t).isInstanceOf(EntityNotFoundException.class);
+    assertThat(t).isInstanceOf(Exception400.class).hasMessageContaining(USER_NOT_FOUND);
   }
 
   @DisplayName("[SUCCESS][updateUserInfoByUserId] 유저 ID와 업데이트 정보를 전달하면 유저 정보를 업데이트 한다.")
@@ -242,11 +237,12 @@ class UserServiceTest {
 
     String profileImage = "updatedImg.png";
     String rawPassword = "updatedPassword!@";
-    String encryptedPassword = passwordEncoder.encode(rawPassword);
+    String encryptedPassword = "encryptedPassword123!@";
+
     UserRequest.UpdateInfoDTO updateInfoDTO =
         UserRequest.UpdateInfoDTO.builder()
-            .profileImg(profileImage)
-            .password(encryptedPassword)
+            .profileImage(profileImage)
+            .password(rawPassword)
             .build();
 
     Timestamp hireDate = Timestamp.valueOf("2023-06-01 00:00:00");
@@ -262,13 +258,13 @@ class UserServiceTest {
 
     Optional<User> optionalUser = Optional.of(user);
 
-    given(userRepository.findById(userId)).willReturn(optionalUser);
-
     // When
+    when(passwordEncoder.encode(updateInfoDTO.getPassword())).thenReturn(encryptedPassword);
+    when(userRepository.findById(userId)).thenReturn(optionalUser);
     sut.updateUserInfoByUserId(userId, updateInfoDTO);
 
     // Then
-    then(userRepository).should().save(user);
+    then(passwordEncoder).should().encode(updateInfoDTO.getPassword());
     assertThat(user)
         .hasFieldOrPropertyWithValue("profileImage", profileImage)
         .hasFieldOrPropertyWithValue("password", encryptedPassword);
@@ -295,22 +291,22 @@ class UserServiceTest {
   @Test
   void givenFindPasswordDTO_whenFindPasswordRequest_thenUpdateTempPassword() {
     // Given
-    UserRequest.FindPasswordDTO findPasswordDTO =
-        new UserRequest.FindPasswordDTO("user@example.com");
+    UserRequest.ResetPasswordDTO resetPasswordDTO =
+        new UserRequest.ResetPasswordDTO("user@example.com");
 
     User user = User.builder().email("encrypted_user@excmple.com").password("1234").build();
 
-    Mockito.when(encryption.encrypt(ArgumentMatchers.anyString()))
+    when(encryption.encrypt(ArgumentMatchers.anyString()))
         .thenAnswer(
             invocation -> {
               String rawData = invocation.getArgument(0);
               return "encrypted_" + rawData;
             });
 
-    Mockito.when(userRepository.findByEmail(ArgumentMatchers.anyString()))
+    when(userRepository.findByEmail(ArgumentMatchers.anyString()))
         .thenReturn(Optional.of(user)); // When
     // When
-    sut.passwordReset(findPasswordDTO);
+    sut.resetPassword(resetPasswordDTO);
 
     // Then
     org.junit.jupiter.api.Assertions.assertNotEquals("1234", user.getPassword());
@@ -320,25 +316,24 @@ class UserServiceTest {
   @Test
   void givenEmptyFindPasswordDTO_whenFindPasswordRequest_thenThrowsException() {
     // Given
-    UserRequest.FindPasswordDTO findPasswordDTO = null;
+    UserRequest.ResetPasswordDTO resetPasswordDTO = null;
 
     // When
     // Then
     org.junit.jupiter.api.Assertions.assertThrows(
-        EmptyDtoRequestException.class, () -> sut.passwordReset(findPasswordDTO));
+        EmptyDtoRequestException.class, () -> sut.resetPassword(resetPasswordDTO));
   }
 
   @DisplayName("[FAIL][findPassword] 유효하지 않은 이메일을 전달할 경우 오류 발생")
   @Test
   void givenInvalidFindPasswordDTO_whenFindPasswordRequest_thenThrowsException() {
     // Given
-    UserRequest.FindPasswordDTO findPasswordDTO =
-        new UserRequest.FindPasswordDTO("user@example.com");
+    UserRequest.ResetPasswordDTO findPasswordDTO =
+        new UserRequest.ResetPasswordDTO("user@example.com");
 
-    Mockito.when(userRepository.findByEmail(ArgumentMatchers.anyString()))
-        .thenReturn(Optional.empty());
+    when(userRepository.findByEmail(ArgumentMatchers.anyString())).thenReturn(Optional.empty());
 
-    Mockito.when(encryption.encrypt(ArgumentMatchers.anyString()))
+    when(encryption.encrypt(ArgumentMatchers.anyString()))
         .thenAnswer(
             invocation -> {
               String rawData = invocation.getArgument(0);
@@ -347,6 +342,6 @@ class UserServiceTest {
     // When
     // Then
     org.junit.jupiter.api.Assertions.assertThrows(
-        UserNotFoundException.class, () -> sut.passwordReset(findPasswordDTO));
+        UserNotFoundException.class, () -> sut.resetPassword(findPasswordDTO));
   }
 }
