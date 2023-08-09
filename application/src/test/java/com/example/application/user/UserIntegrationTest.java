@@ -1,8 +1,10 @@
 package com.example.application.user;
 
 import static com.example.core.config._security.jwt.JwtTokenProvider.TOKEN_PREFIX;
+import static com.example.core.errors.ErrorMessage.NOT_FOUND_USER_TO_RESET_PASSWORD;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.application.user.dto.UserRequest;
@@ -14,6 +16,7 @@ import com.example.core.errors.ErrorMessage;
 import com.example.core.errors.exception.Exception400;
 import com.example.core.errors.exception.Exception401;
 import com.example.core.errors.exception.Exception500;
+import com.example.core.errors.exception.UserNotFoundException;
 import com.example.core.model.user.SignUp;
 import com.example.core.model.user.User;
 import com.example.core.repository.user.SignUpRepository;
@@ -236,7 +239,7 @@ public class UserIntegrationTest {
     String updatedPassword = "updatedPassword!@3";
     UserRequest.UpdateInfoDTO updateInfoDTO =
         UserRequest.UpdateInfoDTO.builder()
-            .profileImg(updatedProfileImg)
+            .profileImage(updatedProfileImg)
             .password(updatedPassword)
             .build();
 
@@ -258,7 +261,7 @@ public class UserIntegrationTest {
     String updatedPassword = "updatedPassword!@3";
     UserRequest.UpdateInfoDTO updateInfoDTO =
         UserRequest.UpdateInfoDTO.builder()
-            .profileImg(updatedProfileImg)
+            .profileImage(updatedProfileImg)
             .password(updatedPassword)
             .build();
 
@@ -273,19 +276,33 @@ public class UserIntegrationTest {
 
   @DisplayName("[SUCCESS][passwordReset] 비밀번호 초기화 요청 - 성공")
   @Test
-  void givenFindPasswordDTO_whenRequests_thenResetPasswordAndSendEmail() {
+  void givenResetPasswordDTO_whenRequests_thenResetPassword() {
     // Given
+    String targetEmail = "test1@test.com";
+    UserRequest.ResetPasswordDTO resetPasswordDTO =
+        UserRequest.ResetPasswordDTO.builder().email(targetEmail).build();
 
     // When
+    String tempPassword = sut.resetPassword(resetPasswordDTO);
 
     // Then
+    assertEquals(tempPassword.length(), 6);
   }
 
   @DisplayName("[FAIL][passwordReset] 비밀번호 초기화 요청 - 존재하지 않는 이메일")
   @Test
-  void givenWrongEmail_whenRequests_thenThrowsNotFoundUserToResetPassword() {}
+  void givenWrongEmail_whenRequests_thenThrowsNotFoundUserToResetPassword() {
+    // Given
+    String targetEmail = "invalidEmail@test.com";
+    UserRequest.ResetPasswordDTO resetPasswordDTO =
+        UserRequest.ResetPasswordDTO.builder().email(targetEmail).build();
 
-  @DisplayName("[FAIL][passwordReset] 비밀번호 초기화 요청 - 기타 이유로 인한 메일 발송 불가")
-  @Test
-  void givenNothing_whenRequests_thenThrowsMailSendFailureException() {}
+    // When
+    Throwable t = catchThrowable(() -> sut.resetPassword(resetPasswordDTO));
+
+    // Then
+    assertThat(t)
+        .isInstanceOf(UserNotFoundException.class)
+        .hasMessageContaining(NOT_FOUND_USER_TO_RESET_PASSWORD);
+  }
 }
