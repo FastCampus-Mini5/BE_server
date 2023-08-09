@@ -7,11 +7,15 @@ import com.example.core.config._security.PrincipalUserDetail;
 import com.example.core.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -58,5 +62,18 @@ public class DutyController {
 
         List<DutyResponse.ListDTO> listResponse = dutyService.getAllDutiesByYear(year);
         return ResponseEntity.ok(ApiResponse.success(listResponse));
+    }
+
+    @GetMapping("/all/excel/download")
+    public ResponseEntity<ByteArrayResource> downloadAllDutiesExcel(@RequestParam("year") int year) throws IOException {
+        byte[] bytes = dutyService.getAllDutiesExcelByYear(year);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=duties.xlsx");
+        headers.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new ByteArrayResource(bytes));
     }
 }

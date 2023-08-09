@@ -16,9 +16,16 @@ import com.example.core.repository.schedule.VacationRepository;
 import com.example.core.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -99,5 +106,31 @@ public class VacationService {
                 .map(VacationResponse.ListDTO::from)
                 .map(listDTO -> listDTO.decrypt(encryption))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] generateAllVacationsExcel(List<VacationResponse.ListDTO> allVacationsInYear) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Vacations");
+
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("유저네임");
+        headerRow.createCell(1).setCellValue("상태");
+        headerRow.createCell(2).setCellValue("연차 시작일");
+        headerRow.createCell(3).setCellValue("연차 종료일");
+
+        for (int i = 0; i < allVacationsInYear.size(); i++) {
+            VacationResponse.ListDTO vacation = allVacationsInYear.get(i);
+            Row row = sheet.createRow(i + 1);
+            row.createCell(0).setCellValue(vacation.getUsername());
+            row.createCell(1).setCellValue("연차");
+            row.createCell(2).setCellValue(vacation.getStartDate().toString());
+            row.createCell(3).setCellValue(vacation.getEndDate().toString());
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        byte[] bytes = outputStream.toByteArray();
+        return bytes;
     }
 }

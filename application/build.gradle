@@ -40,6 +40,9 @@ dependencies {
     implementation "io.springfox:springfox-boot-starter:3.0.0"
     implementation "io.springfox:springfox-swagger-ui:3.0.0"
 
+    implementation 'org.apache.poi:poi:5.1.0'
+    implementation 'org.apache.poi:poi-ooxml:5.1.0'
+
     // 루트 프로젝트의 settings.gradle에 include 한 프로젝트명과 동일해야 한다.
     implementation project(':core')
 }
