@@ -68,7 +68,7 @@ public class SecurityConfig {
                 .and().authorizeRequests(
                         expressionInterceptUrlRegistry ->
                                 expressionInterceptUrlRegistry
-                                        .antMatchers("/api/admin/user/signIn", "/api/user/signin", "/api/user/findPassword").permitAll()
+                                        .antMatchers("/api/admin/user/signIn", "/api/user/signin", "/api/user/findPassword", "/api/user/emailCheck").permitAll()
                                         .antMatchers("/api/admin/**").hasRole("ADMIN")
                                         .antMatchers("/api/user/**").hasRole("USER")
                                         .anyRequest().authenticated());
