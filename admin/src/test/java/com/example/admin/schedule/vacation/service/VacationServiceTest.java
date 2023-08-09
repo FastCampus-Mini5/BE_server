@@ -117,7 +117,7 @@ class VacationServiceTest {
         return Vacation.builder()
                 .id(id)
                 .user(user)
-                .reason(Reason.반차)
+                .reason(Reason.연차)
                 .status(Status.PENDING)
                 .approvalDate(null)
                 .createdDate(Timestamp.valueOf(LocalDateTime.now()))
