@@ -22,25 +22,30 @@ import javax.validation.Valid;
 @RequestMapping("/api/admin/user")
 public class UserController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @GetMapping("/list")
-    public ResponseEntity<ApiResponse.Result<Object>> list(
-            @PageableDefault(size = 10) Pageable pageable) {
-        log.info("GET /api/admin/user/list " + pageable);
+  @RequestMapping("/healthcheck")
+  public ResponseEntity<ApiResponse.Result<Object>> healthcheck() {
+    return ResponseEntity.ok(ApiResponse.success());
+  }
 
-        Page<UserResponse.ListDTO> listResponse = userService.getAllUsers(pageable);
-        return ResponseEntity.ok(ApiResponse.success(listResponse));
-    }
+  @GetMapping("/list")
+  public ResponseEntity<ApiResponse.Result<Object>> list(
+      @PageableDefault(size = 10) Pageable pageable) {
+    log.info("GET /api/admin/user/list " + pageable);
 
-    @PostMapping("/signIn")
-    public ResponseEntity<ApiResponse.Result<Object>> signIn(
-            @RequestBody @Valid UserRequest.SignInDTO signInDTO,
-            Errors errors) {
-        log.info("POST /api/admin/user/signIn" + signInDTO);
+    Page<UserResponse.ListDTO> listResponse = userService.getAllUsers(pageable);
+    return ResponseEntity.ok(ApiResponse.success(listResponse));
+  }
 
-        UserResponse.SignInDTO signInResponse = userService.signIn(signInDTO);
-        return ResponseEntity.ok()
-                .header(JwtTokenProvider.HEADER, signInResponse.getJwt())
-                .body(ApiResponse.success());}
+  @PostMapping("/signIn")
+  public ResponseEntity<ApiResponse.Result<Object>> signIn(
+      @RequestBody @Valid UserRequest.SignInDTO signInDTO, Errors errors) {
+    log.info("POST /api/admin/user/signIn" + signInDTO);
+
+    UserResponse.SignInDTO signInResponse = userService.signIn(signInDTO);
+    return ResponseEntity.ok()
+        .header(JwtTokenProvider.HEADER, signInResponse.getJwt())
+        .body(ApiResponse.success());
+  }
 }

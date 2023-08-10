@@ -75,6 +75,8 @@ public class SecurityConfig {
             expressionInterceptUrlRegistry ->
                 expressionInterceptUrlRegistry
                     .antMatchers(
+                        "/api/admin/user/healthcheck",
+                        "/api/user/healthcheck",
                         "/api/admin/user/signIn",
                         "/api/user/signin",
                         "/api/user/signup",

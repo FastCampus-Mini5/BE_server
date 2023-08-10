@@ -31,6 +31,12 @@ public class UserController {
   private final LoggingService loggingService;
   private final MailService mailService;
 
+  @RequestMapping("/healthcheck")
+  public ResponseEntity<ApiResponse.Result<Object>> signup() {
+
+    return ResponseEntity.ok(ApiResponse.success());
+  }
+
   @PostMapping("/signup")
   public ResponseEntity<ApiResponse.Result<User>> signup(
       @RequestBody @Valid UserRequest.SignUpDTO signUpDTO, Errors errors) {
