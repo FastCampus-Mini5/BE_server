@@ -319,5 +319,5 @@ spring:
 
 
 ### 📝 License
-Copyright © 2023 [당연하지](https://github.com/FastCampus-Mini5/BE_server).<br />
+Copyright © 2023 [당연하지](https://github.com/FastCampus-Mini5/BE_server).<br/>
 This project is [MIT](https://github.com/wupitch/wupitch-server/blob/main/LICENSE) licensed.
