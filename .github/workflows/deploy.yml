@@ -3,7 +3,7 @@ name: CI-CD
 on:
   push:
     branches:
-      - develop
+      - release
 
 env:
   S3_BUCKET_NAME: kdtmini5-s3
